@@ -72,10 +72,10 @@
           <img src="../assets/images/a_ic_3.png" alt="">
           <p>Facebook</p>
         </div>
-        <div @click="otherLogin('Google')">
-          <img src="../assets/images/a_ic_4.png" alt="">
-          <p>Google</p>
-        </div>
+<!--        <div @click="otherLogin('Google')">-->
+<!--          <img src="../assets/images/a_ic_4.png" alt="">-->
+<!--          <p>Google</p>-->
+<!--        </div>-->
       </div>
     </div>
 
@@ -126,9 +126,9 @@ export default {
       this.loginCount = JSON.parse(window.sessionStorage.getItem('loginCount'));
     }
     let ls = localStorage.getItem('userMsg');
-    if (ls) {
-      this.$router.push({ path: '/temp' });
-    }
+    // if (ls) {
+    //   this.$router.push({ path: '/temp' });
+    // }
     if (window.sessionStorage.getItem('paySuccess')) {
       window.sessionStorage.removeItem('paySuccess');
     }
@@ -146,7 +146,7 @@ export default {
         this.area = '台湾';
       }
     }
-    console.log('准备code')
+    // console.log('准备code')
 
 
     if(location.href.indexOf('abc236565sd') !== -1 ) {
@@ -175,50 +175,68 @@ export default {
           .then(res => {
             // console.log('+++++++++++++successlog===================')
             // if(res.data.code === 200) {
-            let idToken = res.data["id_token"];
-            let id = idToken.indexOf('.')
-            let tokenString = idToken.substring(0, id)
-            let param = {
-              lineId: tokenString
-            }
-            let accessToken = res.data["access_token"];
-            let access = accessToken.indexOf('.')
-            let accessTokenString = accessToken.substring(0, access)
-            sessionStorage.setItem("lineId", tokenString);
-            sessionStorage.setItem("accessToken", accessTokenString)
-            console.log(param)
+            // let idToken = res.data["id_token"];
+            // let id = idToken.indexOf('.')
+            // let tokenString = idToken.substring(0, id)
             console.log(res)
-            post ('api/user/loginByLine' ,param, res2=> {
-              console.log(res2.data)
-              if(res2.data.code === 200) {
-                console.log('成功')
-                this.loginCount = 2;
-                window.sessionStorage.setItem('loginCount', JSON.stringify(this.loginCount));
-                let user = {};
-                user.id = res2.data.data.id;
-                user.token = res2.data.data.token;
-                this.$store.commit("SELECT_SHOP", {
-                  user: user
+            let lineData = res.data;
+            console.log(lineData)
+            let accessToken = lineData["access_token"];
+            console.log("access")
+            console.log(accessToken);
+            post('line/user/getUserInfo', {accessToken:accessToken}, res1=> {
+              console.log("getUser")
+              console.log(res1.data)
+              let userId = res1.data.userId
+              this.lineName = res1.data.displayName
+              window.sessionStorage.setItem("userId" , userId)
+              post ('api/user/loginByLine' , {lineId: userId}, res2=> {
+                  console.log('loginLine')
+                  console.log(res2.data)
+                  if(res2.data.code === 200) {
+                    console.log('成功')
+                    this.loginCount = 2;
+                    window.sessionStorage.setItem('loginCount', JSON.stringify(this.loginCount));
+                    let user = {};
+                    user.id = res2.data.data.id;
+                    user.token = res2.data.data.token;
+                    this.$store.commit("SELECT_SHOP", {
+                      user: user
+                    })
+                    console.log(user)
+                    localStorage.setItem('userMsg', JSON.stringify(user))
+                    setTimeout(() => {
+                      this.$router.push({path: '/temp'})
+                    }, 1000)
+                  }else if (res2.data.code === 400 ) {
+                    this.loginCount = 2
+
+                    this.$router.push({path: "/person-detail",
+                      query: {
+                        origin: 'line',
+                        name: this.lineName
+                      }
+                      // query:{origin:'line',access_token:accessTokenString,lineId:tokenString}
+                    });
+
+                    // this.$router.push('/person-detail')
+                    window.sessionStorage.setItem('loginCount', JSON.stringify(this.loginCount))
+
+                  }
                 })
-                console.log(user)
-                localStorage.setItem('userMsg', JSON.stringify(user))
-                setTimeout(() => {
-                  this.$router.push({path: '/temp'})
-                }, 1000)
-              }else if (res2.data.code === 400 ) {
-                this.loginCount = 2
-
-                this.$router.push({path: "/person-detail",
-                  query: {origin: 'line'}
-                  // query:{origin:'line',access_token:accessTokenString,lineId:tokenString}
-                });
-
-                // this.$router.push('/person-detail')
-                window.sessionStorage.setItem('loginCount', JSON.stringify(this.loginCount))
-
-              }
             })
-            //}
+            // let param = {
+            //   lineId: tokenString
+            // }
+            // let accessToken = res.data["access_token"];
+            // let access = accessToken.indexOf('.')
+            // let accessTokenString = accessToken.substring(0, access)
+            // sessionStorage.setItem("lineId", tokenString);
+            // sessionStorage.setItem("accessToken", accessTokenString)
+            // console.log(param)
+            // console.log(res)
+            //
+            // }
 
           })
           .catch(err => {
@@ -228,7 +246,8 @@ export default {
       }
     } else {
       //微信登录
-      if(location.href.indexOf('code') !== -1) {
+      // console.log(location.href)
+      if(location.href.indexOf('code') !== -1 && location.href.indexOf('state') !== -1 ) {
         this.userCode = this.getvar(location.href, 'code');
             console.log('weixin')
             post(
@@ -280,6 +299,56 @@ export default {
                   this.$toast('登录失败');
                 }
               })
+      }else{
+        if(location.href.indexOf('code') !== -1) {
+          this.userCode = this.getvarFb(location.href, 'code');
+          post('line/user/getFacebookInfo', {"code": this.userCode},
+            res=> {
+              console.log(res, "獲取id")
+              window.sessionStorage.setItem("userId" , res.data.id)
+              if (res.data.id) {
+                post('api/user/loginByFacebook', {"facebookId": res.data.id}, res2 => {
+                  if (res2.data.code === 200) {
+                    // this.$router.push({path:'bindAccount',query:{openId:res1.data.data}});
+                    Toast('登录成功');
+                    this.loginCount = 2;
+                    window.sessionStorage.setItem('loginCount', JSON.stringify(this.loginCount));
+                    let user = {};
+                    user.id = res2.data.data.id;
+                    user.token = res2.data.data.token;
+                    this.$store.commit('SELECT_SHOP', {
+                      user: user
+                    });
+                    console.log(user);
+                    localStorage.setItem('userMsg', JSON.stringify(user));
+                    // localStorage.setItem('userToken',user.token);
+                    setTimeout(() => {
+                      this.$router.push({path: '/temp'});
+                    }, 1000);
+                  } else if (res2.data.code === 400 ) {
+                    this.loginCount = 2;
+                    // this.$toast(JSON.parse(res1.data.data).access_token);
+                    window.sessionStorage.setItem('loginCount', JSON.stringify(this.loginCount));
+                    this.$router.push({
+                      path: "/person-detail",
+                      query: {
+                        origin: 'facebook',
+                        name: res.data.name
+                      }
+                    });
+                  } else {
+                    Toast(res2.data.message);
+                  }
+                });
+              }else {
+                this.$toast('登录失败');
+              }
+
+            })
+          console.log('facebook', 'code')
+        }
+
+
       }
     }
 
@@ -287,8 +356,24 @@ export default {
   },
   methods: {
     getvar(url, par) {
+      if (url.indexOf('?') !== -1) {
+        let urlsearch = url.split('?');
+        console.log(urlsearch, 'urlsearch')
+        let pstr = urlsearch[1].split('&');
+        for (let i = pstr.length - 1; i >= 0; i--) {
+          let tep = pstr[i].split('=');
+          if (tep[0] === par) {
+            return tep[1];
+          }
+        }
+        return -1;
+      }
+
+    },
+    getvarFb(url, par) {
       let urlsearch = url.split('?');
-      let pstr = urlsearch[1].split('&');
+      console.log(urlsearch, 'urlsearch')
+      let pstr = urlsearch[1].split('#');
       for (let i = pstr.length - 1; i >= 0; i--) {
         let tep = pstr[i].split('=');
         if (tep[0] === par) {
@@ -415,6 +500,14 @@ export default {
           'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=1654169181&state=abc236565sd&redirect_uri=http%3A%2F%2F8.210.210.214%2Fh5&scope=openid%20profile'
           // ' https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=1654169181&redirect_uri=http%3A%2F%2F8.210.210.214%2Fh5&scope=openid%20profile'
         console.log('line2')
+
+      }else if (type === 'Facebook') {
+        console.log("Facebook")
+        this.loginCount = 1;
+        window.sessionStorage.setItem('loginCount',JSON.stringify(this.loginCount));
+        location.href =
+          'https://www.facebook.com/v2.8/dialog/oauth?client_id=607524293212055&redirect_uri=https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2Flogin'
+          console.log('facebook2')
 
       }else{
         this.$toast('暂未开放该登录方式，敬请期待');

@@ -70,31 +70,27 @@
       }
     },
     mounted() {
-      // 获取排行榜信息
-      if(JSON.parse(localStorage.getItem('selectTempData')).id){
-        post('api/templeTransaction/rank',{
-          "templeId": JSON.parse(localStorage.getItem('selectTempData')).id
-        },res => {
-          console.log(res);
-          if(res.data.code ===200){
-            this.rankList = res.data.data;
-            this.rankList.forEach((item,index) => {
-              if(!item.userName || item.userName === '') {
-                item.userName = '大德';
-              }
-            });
-          }else {
-            this.$toast('获取排行榜信息失败');
-          }
-        });
-        // 获取当前用户是否上榜信息
+
+      if (JSON.parse(localStorage.getItem('selectTempData')).id) {
         post('api/user/getInvisible', {}, res => {
-          console.log(res);
-          if (res.data.code === 200) {
-            if(res.data.data){
-              console.log('111')
-              // 查看我在当前寺庙的排名
-              post('api/templeTransaction/findMyRank',{templeId:JSON.parse(window.localStorage.getItem('selectTempData')).id},res => {
+          console.log(res)
+          if(res.data.data === true) {
+            post('api/templeTransaction/rank',
+            {
+              "templeId": JSON.parse(localStorage.getItem('selectTempData')).id
+            }, res => {
+              if(res.data.code ===200){
+                this.rankList = res.data.data;
+                this.rankList.forEach((item,index) => {
+                  if(!item.userName || item.userName === '') {
+                    item.userName = '大德';
+                  }
+                });
+              }else {
+                this.$toast('获取排行榜信息失败');
+              }
+            })
+            post('api/templeTransaction/findMyRank',{templeId:JSON.parse(window.localStorage.getItem('selectTempData')).id},res => {
                 console.log(res);
                 if(res.data.code ===200){
                   if(this.ranking ===0){
@@ -104,12 +100,80 @@
                   }
                 }
               })
-            }
+          }else if(res.data.data === false){
+            post('api/templeTransaction/rank',{
+              "templeId": JSON.parse(localStorage.getItem('selectTempData')).id
+            },res => {
+              console.log(res);
+              if(res.data.code ===200){
+                let id = JSON.parse(localStorage.getItem('userMsg')).id
+                console.log(id)
+                this.rankList = res.data.data
+                console.log(this.rankList)
+                this.rankList.forEach((item, index) => {
+                  console.log(id)
+                  if(item.user.id === id) {
+                    this.rankList.splice(index, 1)
+                  }
+                  if(!item.userName || item.userName === '') {
+                    item.userName = '大德';
+                  }
+                })
+                console.log(this.rankList , "444")
+                // this.rankList = res.data.data;
+                // this.rankList.forEach((item,index) => {
+                //   if(!item.userName || item.userName === '') {
+                //     item.userName = '大德';
+                //   }
+                // });
+              }else {
+                this.$toast('获取排行榜信息失败');
+              }
+            });
           }
         })
-      }else {
-        this.$toast('您还未选择寺庙哦，请先选择寺庙');
       }
+      // 获取排行榜信息
+      // if(JSON.parse(localStorage.getItem('selectTempData')).id){
+      //   post('api/templeTransaction/rank',{
+      //     "templeId": JSON.parse(localStorage.getItem('selectTempData')).id
+      //   },res => {
+      //     console.log(res);
+      //     if(res.data.code ===200){
+      //       this.rankList = res.data.data;
+      //       this.rankList.forEach((item,index) => {
+      //         if(!item.userName || item.userName === '') {
+      //           item.userName = '大德';
+      //         }
+      //       });
+      //     }else {
+      //       this.$toast('获取排行榜信息失败');
+      //     }
+      //   });
+      //   // 获取当前用户是否上榜信息
+      //   // post('api/user/getInvisible', {}, res => {
+      //   //   console.log(res);
+      //   //   if (res.data.code === 200) {
+      //   //     if(res.data.data){
+      //   //       console.log('111')
+      //         // 查看我在当前寺庙的排名
+              
+      //         // post('api/templeTransaction/findMyRank',{templeId:JSON.parse(window.localStorage.getItem('selectTempData')).id},res => {
+      //         //   console.log(res);
+      //         //   if(res.data.code ===200){
+      //         //     if(this.ranking ===0){
+      //         //       this.ranking = '99+'
+      //         //     }else {
+      //         //       this.ranking = res.data.data;
+      //         //     }
+      //         //   }
+      //         // })
+      //       }
+      //     }
+      //   })
+      // }else {
+      //   this.$toast('您还未选择寺庙哦，请先选择寺庙');
+      // }
     }
   }
 </script>

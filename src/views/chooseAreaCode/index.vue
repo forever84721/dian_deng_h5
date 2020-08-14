@@ -36,6 +36,8 @@
           this.$router.push({path:'/forget',query:{areaCode:code}});
         }else if(this.$route.query.origin === 'bind'){
           this.$router.push({path:'/bindAccount',query:{areaCode:code,openId:this.$route.query.openId}});
+        }else if (this.$route.query.origin === 'safe') {
+          this.$router.push({path:'/safeVerify',query:{areaCode:code,show:"show2"}});
         }
       }
     }

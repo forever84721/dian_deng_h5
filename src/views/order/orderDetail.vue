@@ -25,7 +25,7 @@
           <div class="logo_right">
               <p><span>{{$t('m.footerNav.temp')}}:</span>{{item.templeName}}</p>
               <p><span>{{$t('m.lampDetail.lampCateGory')}}:</span>{{item.lampCategoryName}}</p>
-              <p><span>{{$t('m.lightDetailPage.findNum')}}:</span>{{item.number}}</p>
+            <p><span>{{$t('m.lightDetailPage.findNum')}}:<span style="font-size: 0.5rem">{{item.number}}</span></span></p>
 
 
           </div>
@@ -35,7 +35,7 @@
           <p><span>{{$t('m.lampMenu.lampSeat')}}:</span>{{item.seat}}</p>
           <p><span>{{$t('m.anDonStartTime')}}:</span>{{orderDetail.startLightAt}}</p>
           <p><span>{{$t('m.anDonEndTime')}}:</span>{{orderDetail.endLightAt}}<span class="renew"
-                                                                 v-if="!orderDetail.expired && orderDetail.status !== 'pending'"
+                                                                 v-if="orderDetail.isPaid === true  "
                                                                  @click="continueLamp(item)">{{$t('m.lightDetailPage.RenewLight')}}</span></p>
           </div>
           <div><div class="outTime" v-if="orderDetail.expired">已过期</div></div>
@@ -53,26 +53,26 @@
         <p><span>{{$t('m.orderNum')}}:</span>{{orderDetail.id}}</p>
         <p><span>{{$t('m.createTime')}}:</span>{{orderDetail.updateAt}}</p>
 <!--        <p v-if="orderDetail.status === '已付款'"><span>付款时间:</span>{{this.endLightAt}}</p>-->
-        <p><span style="font-size: 0.56rem;color: #EC3400" @click="goCheckThank(orderDetail.id)"  v-if="!orderDetail.expired &&orderDetail.status !== 'pending'">{{$t('m.checkThank')}}</span></p>
+        <p><span style="font-size: 0.56rem;color: #EC3400" @click="goCheckThank(orderDetail.id)"  v-if="orderDetail.isPaid === true  ">{{$t('m.checkThank')}}</span></p>
       </div>
     </div>
     <div class="btn" v-if="orderDetail.status === 'pending' && this.orderTimeShow" @click="goPay">
       付款
     </div>
-    <div class="btn" v-if="orderDetail.status === 'closed'  ">
+    <div class="btn" v-if="orderDetail.status === 'closed' || (orderDetail.status === 'pending' && !this.orderTimeShow)   ">
       已结束
       <!--   阴影遮罩    -->
       <div class="shade">
       </div>
 
     </div>
-    <div class="btn" v-if="orderDetail.status === 'pending' && !this.orderTimeShow ">
-      已取消
-      <!--   阴影遮罩    -->
-      <div class="shade">
-      </div>
+<!--    <div class="btn" v-if="orderDetail.status === 'pending' && !this.orderTimeShow ">-->
+<!--      已取消-->
+<!--      &lt;!&ndash;   阴影遮罩    &ndash;&gt;-->
+<!--      <div class="shade">-->
+<!--      </div>-->
 
-    </div>
+<!--    </div>-->
 
     <!--  续灯弹窗    -->
     <van-popup v-model="dialogShow" position="bottom">
@@ -165,7 +165,7 @@
 <script>
   import {post} from '@/utils/request/index'
   import '../../assets/css/topNav.css'
-  import {Toast} from 'vant'
+  import {Dialog, Toast} from 'vant'
 
   export default {
     name: "index",
@@ -188,6 +188,7 @@
         orderId: "",
         userCode: '',
         openId: '',
+        days: '',
         orderTimeData: {
           formatCreateTime: '',
           currentTime: '',
@@ -205,12 +206,14 @@
       },
       nowPay() {
         post('api/order/checkIsRenewable', {
-          lampId: this.$route.query.id,
+          lampId: this.blessUserInfo.id,
           userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
         }, res => {
           console.log(res);
-          if (res.data.code === 200) {
+
+          if (res.data.data === true) {
             if (this.radio === '1') {
+              console.log(this.day , 'nowpay')
               let browserInfo = navigator.userAgent.toLowerCase();
               if (browserInfo.match(/MicroMessenger/i) == 'micromessenger') {
                 post('api/user/getLoginType', {}, res => {
@@ -220,6 +223,7 @@
                         console.log(res2);
                         // this.$toast(res);
                         if (res2.data.code === 200) {
+                          console.log('loc', JSON.parse(localStorage.getItem('selectTempData')))
                           this.openId = res2.data.data;
                           post('api/pay/renewPay', {
                             "pilgrimId": this.blessUserInfo.pilgrimId,
@@ -227,7 +231,7 @@
                             "durationQuantity": this.days,
                             "type": "jsapi",
                             "openId": this.openId,
-                            "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                            "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
                           }, res1 => {
                             console.log(res1);
                             if (res1.data.code === 200) {
@@ -241,13 +245,14 @@
                       });
                     } else {
                       if (this.openId !== '') {
+                        console.log("openId", JSON.parse(localStorage.getItem('selectTempData')))
                         post('api/pay/renewPay', {
                           "pilgrimId": this.blessUserInfo.pilgrimId,
                           "deposit": Number(this.needMoney),
                           "durationQuantity": this.days,
                           "type": "jsapi",
                           "openId": this.openId,
-                          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                          "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
                         }, res1 => {
                           console.log(res1);
                           if (res1.data.code === 200) {
@@ -257,6 +262,7 @@
                           }
                         })
                       } else {
+                        console.log('phone', JSON.parse(localStorage.getItem('selectTempData')))
                         location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf7cda5610536583c&redirect_uri=https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2ForderDetail%3Fid%3D' + this.$route.query.id + '%26pilgrimId%3D' + this.blessUserInfo.pilgrimId + '%26money%3D' + this.needMoney + '%26durationQuantity%3D' + this.days + '%26orderId%3D' + this.$route.query.orderId + '+&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
                       }
                     }
@@ -290,7 +296,7 @@
                   "type": "h5",
                   "pilgrimId": this.blessUserInfo.pilgrimId,
                   "openId": "",
-                  "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                  "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
                 }, res => {
                   console.log(res);
                   // this.$toast(1);
@@ -306,7 +312,17 @@
                   }
                 });
               }
-            } else {
+            } else if (this.radio === '3') {
+              post('api/pay/renewLinePay', {
+                "pilgrimId": this.blessUserInfo.pilgrimId,
+                "deposit": this.needMoney,
+                "durationQuantity": this.days,
+              }, res => {
+                console.log(res)
+                console.log(res.data)
+                location.href = res.data.data.info.paymentUrl.web
+              })
+            }else {
               this.$toast('该支付方式暂未开放，请重新选择支付方式');
             }
           } else {
@@ -440,7 +456,9 @@
       onConfirm(value, index) {
         this.dialogShow = false;
         this.payShow = true;
+        console.log(index,'zhi')
         this.days = this.dayArr[index];
+        console.log(this.days, 'cjx')
         console.log(value);
         console.log(index);
         this.needMoney = value.split('￥')[1];
@@ -455,14 +473,15 @@
           userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
         }, res => {
           console.log(res);
-          if (res.data.code === 200) {
+          if (res.data.data === true) {
             this.dialogShow = true;
             // 获取灯种规格
             post('api/lampGoods/findByLampId', {lampId: item.id}, res => {
               console.log(res);
               this.lampSelect = res.data.data;
-              console.log(this.lampSelect);
+              console.log(this.lampSelect , 'nijapo');
               // 续灯选择器相关配置项的处理
+              this.columns = [];
               this.lampSelect.forEach((item, index) => {
                 let price = '';
                 if (!item.important) {
@@ -471,17 +490,18 @@
                   price = item.vipPrice
                 }
                 let newItem = item.durationName + '￥' + price;
-                this.columns = [];
+                //this.columns = [];
                 this.columns.push(newItem);
-                console.log(this.columns);
+                console.log(111 ,this.columns);
                 this.dayArr.push(item.durationQuantity);
+                //console.log(222,item.durationQuantity)
               });
-              console.log(this.columns);
-              console.log(this.dayArr);
+              console.log(333, this.columns);
+              console.log(444, this.dayArr);
             });
-          } else if(res.data.code === 400) {
-            this.$toast(res.data.message)
-            //this.$toast('该灯位已被占用~');
+          } else if(res.data.data === false) {
+            // this.$toast(res.data.message)
+            this.$toast('该灯位已被占用~');
           }
         });
       },
@@ -553,7 +573,25 @@
     },
     mounted() {
       //订单倒计时
+      // line续灯的调用监听
+      if (location.href.indexOf("transactionId") !== -1) {
+        post('api/order/linePayRenewConfirm',{
+          "transactionId": this.$route.query.transactionId,
+          "money": this.needMoney,
+          "pilgrimId": this.$route.query.pilgrimId,
+          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id,
+          "durationQuantity": this.$route.query.durationQuantity ,
+          "accountId": JSON.parse(localStorage.getItem("userMsg")).id,
+        }, res => {
+          console.log(res)
+          if (res.data.data === true) {
+            Toast("续灯成功")
+          }else {
+            Toast("续灯失败")
+          }
 
+        })
+      }
       // this.$toast(location.href);
       // console.log('11111111111111111111');
       console.log(location.href);
@@ -579,7 +617,8 @@
                       "deposit": Number(this.$route.query.money),
                       "durationQuantity": this.$route.query.durationQuantity,
                       "type": "jsapi",
-                      "openId": this.openId
+                      "openId": this.openId,
+                      "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
                     }, res1 => {
                       console.log(res1);
                       if (res1.data.code === 200) {
@@ -640,6 +679,7 @@
           console.log(this.orderDetail);
         });
       }
+      // if (location.href.indexOf(''))
       setTimeout(() => {
         this.orderTimeData.currentTime = this.formatDateTime(new Date())
         this.orderTimeData.formatCreateTime = this.orderDetail.createAt
@@ -652,6 +692,18 @@
       // console.log(this.orderDetail.updateAt)
       // console.log(this.orderTimeData.formatCreateTime)
       // this.ComputerTime(this.orderTimeData)
+    },
+    updated() {
+      if (this.radio === '3') {
+        if (localStorage.getItem('environment') === 'weixin') {
+          Dialog.alert({
+            message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
+          }).then(() => {
+            this.radio = '1'
+          });
+
+        }
+      }
     },
   }
 </script>
@@ -751,8 +803,8 @@
 
         .logo_right {
           float: left;
-          margin-left: 0.6rem;
-          width: 6.8rem;
+          margin-left: 0.3rem;
+          width: 7.2rem;
           font-size: 0.56rem;
           font-family: PingFangSC-Regular;
           position: relative;
@@ -762,7 +814,7 @@
           }
 
           span {
-            margin-right: 0.4rem;
+            margin-right: 0.2rem;
           }
 
         }

@@ -5,7 +5,7 @@
       left-arrow
       @click-left="onClickLeft"
     />
-    <div v-html="info.content">
+    <div class="ql-editor" v-html="info[0].content" >
 <!--      {{info.content}}-->
     </div>
   </div>
@@ -19,7 +19,7 @@
     name:'about',
     data() {
       return{
-        info:{}
+        info:[]
       }
     },
     methods:{
@@ -43,6 +43,7 @@
         console.log(res);
         if(res.data.code === 200){
           this.info = res.data.data;
+          console.log(this.info, "11")
         }
       })
     }

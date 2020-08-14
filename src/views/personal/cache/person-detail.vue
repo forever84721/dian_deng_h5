@@ -210,6 +210,18 @@
         // location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf7cda5610536583c&redirect_uri=http%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2Fperson-detail%3Forigin%3DweiXin%26powerCount%3D2&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
       }else if (this.$route.query.origin === 'line'&& this.powerCount === 1) {
         this.$toast('您当前为第一次使用line登录,请点击下方的保存按钮');
+        this.cellValue.realName = this.$route.query.name;
+        this.cellValue.birthday = '请选择';
+        this.cellValue.birthHour = '请选择';
+        this.cellValue.address = '';
+        this.cellValue.telephone = '请填写';
+      } else if (this.$route.query.origin === 'facebook'&& this.powerCount === 1) {
+        this.$toast('您当前为第一次使用facebook登录,请点击下方的保存按钮');
+        this.cellValue.realName = this.$route.query.name;
+        this.cellValue.birthday = '请选择';
+        this.cellValue.birthHour = '请选择';
+        this.cellValue.address = '';
+        this.cellValue.telephone = '请填写';
       }
       // if (location.href.indexOf('code') !== -1 && this.powerCount === 1) {
       //   this.userCode = this.getvar(location.href, 'code');
@@ -486,8 +498,10 @@
           this.validDataPhone(this.userCellphone);
         }
         let obj = {};
+        console.log(this.$route.query.origin, "origin")
         if(this.$route.query.origin){
           obj.cellphone = this.userCellphone
+          console.log(obj.cellphone, "cellphoneObj")
         }
         obj.realName = this.cellValue.realName;
         obj.zodiac = this.cellValue.zodiac;
@@ -522,7 +536,10 @@
               post('api/user/loginWithOpenId',{openId:this.$route.query.openid},res => {
                 if(res.data.code === 200){
                   // this.$router.push({path:'bindAccount',query:{openId:res1.data.data}});
-                  // Toast('登录成功');
+                  Toast('登录成功');
+                  if(localStorage.getItem("selectTempData")) {
+                    localStorage.removeItem("selectTempData")
+                  }
                   this.powerCount = 2;
                   window.sessionStorage.setItem('powerCount',JSON.stringify(this.powerCount));
                   let user = {};
@@ -549,13 +566,16 @@
         }else if (this.$route.query.origin === 'line'){
           post('api/user/saveWithLine', {
             "user": obj,
-            "lineId": sessionStorage.getItem('lineId')
+            "lineId": sessionStorage.getItem('userId')
           }, res2 => {
             if(res2.data.code === 200) {
-              post('api/user/loginByLine',{lineId:sessionStorage.getItem('lineId')},res => {
+              post('api/user/loginByLine',{lineId:sessionStorage.getItem('userId')},res => {
                 if(res.data.code === 200){
                   // this.$router.push({path:'bindAccount',query:{openId:res1.data.data}});
                   Toast('登录成功');
+                  if(localStorage.getItem("selectTempData")) {
+                    localStorage.removeItem("selectTempData")
+                  }
                   this.powerCount = 2;
                   window.sessionStorage.setItem('powerCount',JSON.stringify(this.powerCount));
                   let user = {};
@@ -579,6 +599,42 @@
               this.$toast(res2.data.message);
             }
           });
+        }else if(this.$route.query.origin === 'facebook') {
+          post('api/user/saveWithFacebook', {
+            "user": obj,
+            "facebookId": sessionStorage.getItem('userId')
+          }, res => {
+            if(res.data.code === 200) {
+              post('api/user/loginByFacebook',{"facebookId":sessionStorage.getItem('userId')},res => {
+                if(res.data.code === 200){
+                  // this.$router.push({path:'bindAccount',query:{openId:res1.data.data}});
+                  Toast('登录成功');
+                  if(localStorage.getItem("selectTempData")) {
+                    localStorage.removeItem("selectTempData")
+                  }
+                  this.powerCount = 2;
+                  window.sessionStorage.setItem('powerCount',JSON.stringify(this.powerCount));
+                  let user = {};
+                  user.id = res.data.data.id;
+                  user.token = res.data.data.token;
+                  this.$store.commit('SELECT_SHOP', {
+                    user: user
+                  });
+                  console.log(user);
+                  localStorage.setItem('userMsg', JSON.stringify(user));
+                  // localStorage.setItem('userToken',user.token);
+                  this.$router.push({ path: '/temp' });
+                }else {
+                  this.powerCount = 2;
+                  window.sessionStorage.setItem('powerCount',JSON.stringify(this.powerCount));
+                  this.$toast('登录失败');
+                  this.$router.push({ path: '/login' });
+                }
+              })
+            }else {
+              this.$toast(res.data.message);
+            }
+          })
         }else {
           post('api/user/update', {
             user: obj

@@ -12,7 +12,9 @@ export const m = {
       old:'年齡'
     },
     consumePower:'消費排行榜',
+    consumeSetting:'排行設置',
     setting: '設定',
+    pay: '支付',
     safe:'賬號與安全',
     verify:'驗證手機號',
     bindNewTel:'綁定新手機號',
@@ -37,7 +39,8 @@ export const m = {
       language_2: '中文繁體'
     },
     serviceLog:'服務記錄',
-    checkOrder:'查看訂單'
+    checkOrder:'查看訂單',
+    helpMsg: '帮助詳情'
   },
   // 底部导航栏
   footerNav: {
@@ -50,12 +53,14 @@ export const m = {
   temp: {
     lampServe:'點燈服務',
     onlineLamp:'在線點燈',
+    selectTemp:'選擇寺廟',
     temp_1:'您還沒有選擇寺廟',
     temp_2:'快去選寺廟吧',
     temp_3:'選寺廟'
   },
   //  灯种详情
   lampDetail: {
+    lampDetail: '燈種詳情',
     onlineLamp:'線上點燈',
     select:'規格',
     needLamp:'我要點燈',
@@ -63,6 +68,7 @@ export const m = {
   },
   // 灯位菜单
   lampMenu:{
+    lampMenu: '燈位菜單',
     pro:'護佑點燈信眾元辰光彩、進福納吉、財源廣進、事業發達、添福添壽。祈求信徒2019年平安順遂吉祥納福',
     lightDetail:'點燈詳情',
     num:'數量',
@@ -74,21 +80,25 @@ export const m = {
     submitOrder:'提交訂單',
     pleaseSelectLamp:'請選擇燈位',
     randomLamp:'隨機配燈',
-    selfSelect:'自選燈位'
+    selfSelect:'自選燈位',
+
   },
   //  活动中心
   activeCenter:{
+    activeCenter:'活動中心',
     activeMessage:'活動消息'
   },
   thanks:'感謝狀',
   thankMessage:'至深感謝  狀表謝忱',
   donateMoney:'捐贈香油錢',
+  donateSuccess: '捐贈成功',
   setting: '設定',
   brightLampDetail:'明燈詳情',
   login:'登錄',
   register:'註冊',
   forgetPsd:'忘記密碼',
   setPsd:'設置密碼',
+  newPsd: '新密碼',
   lightDetailPage: {
     hi:'您好，歡迎您來點燈',
     bless:'祝您身體健康、萬事如意、元辰光彩',
@@ -115,7 +125,9 @@ export const m = {
   anDonStartTime:'安燈開始時間',
   anDonEndTime:'安燈結束時間',
   orderInfo:'訂單信息',
+  orderMsg: '訂單詳情',
   orderMoney:'訂單金額',
   orderNum:'訂單編號',
-  createTime:'創建時間'
+  createTime:'創建時間',
+  lampSuccess: '點燈成功'
 }

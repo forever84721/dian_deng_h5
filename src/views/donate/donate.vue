@@ -27,7 +27,7 @@
       closeable
       close-icon-position="top-left"
       position="bottom"
-      :style="{ height: '60%' }"
+      :style="{ height: '70%' }"
     >
       <div class="top">
         <img src="../../assets/images/d_ic_close.png" alt="" @click="closePay">
@@ -96,6 +96,7 @@
 <script>
   import '../../assets/css/topNav.css'
   import {post} from '@/utils/request/index'
+  import {Dialog} from "vant";
 
   export default {
     name: 'help',
@@ -264,6 +265,7 @@
       },
       goResult() {
         console.log(parseInt(this.donateMoney));
+        console.log(this.radio)
         // return false;
         if (this.radio === '1') {
           let browserInfo = navigator.userAgent.toLowerCase();
@@ -343,7 +345,24 @@
               }
             })
           }
-        } else {
+        } else if (this.radio === '3'){
+          post('api/beneficiary/encryptionKeyAndSecret', {
+            "templeId": JSON.parse(localStorage.getItem('selectTempData')).id
+          }, res1 => {
+            console.log('encry', res1)
+            post('line/pay/linePayDonate' ,{
+              "deposit": Number(this.donateMoney),
+              "accountId": JSON.parse(localStorage.getItem("userMsg")).id  ,
+              "templeId": JSON.parse(localStorage.getItem('selectTempData')).id,
+              "channelId": res1.data.data.appKey,
+              "secretKey": res1.data.data.appSecret,
+            }, res => {
+              console.log(res.data)
+              location.href = res.data.info.paymentUrl.web
+            })
+          })
+
+        } else{
           this.$toast('该支付方式暂未开放，请重新选择支付方式');
         }
       },
@@ -404,6 +423,25 @@
           }
         });
       }
+      //获取line的订单状态，跳转页面
+      if (location.href.indexOf('transactionId' ) !== -1) {
+        // let transactionId = this.$route.query.transactionId
+        let param = {
+          "transactionId": this.$route.query.transactionId,
+          "money": this.$route.query.money,
+          "accountId": JSON.parse(localStorage.getItem('userMsg')).id,
+          "templeId": JSON.parse(localStorage.getItem('selectTempData')).id,
+        }
+        post ('api/order/linePayDonateConfirm', param, res => {
+          console.log(res)
+          if (res.data.data === true) {
+            this.$toast("捐赠成功")
+            this.$router.push('/donateSuccess')
+          }else {
+            this.$toast("捐赠失败")
+          }
+        })
+      }
       // 获取单次所能捐赠的最大金额
       post('api/configuration/findByTempleId', {templeId: JSON.parse(localStorage.getItem('selectTempData')).id}, res => {
         console.log(res);
@@ -411,7 +449,19 @@
           this.maxDonateMoney = res.data.data.maxDonateAmount;
         }
       })
-    }
+    },
+    updated() {
+      if (this.radio === '3') {
+        if (localStorage.getItem('environment') === 'weixin') {
+          Dialog.alert({
+            message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
+          }).then(() => {
+            this.radio = '1'
+          });
+
+        }
+      }
+    },
   }
 </script>
 

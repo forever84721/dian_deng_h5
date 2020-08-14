@@ -24,6 +24,9 @@
       </div>
       <div class="br"></div>
       <div class="lampMessage">
+        <div class="tag" v-if="lightDetail.important">
+          贵宾
+        </div>
         <div class="text">
           <span class="s1"></span>
           <span class="s3">{{$t('m.lightDetailPage.lightMessage')}}</span>
@@ -49,16 +52,18 @@
           <div class="seeMovie" @click="seeMovie">{{$t('m.lightDetailPage.seeMovie')}}</div>
           <div class="findLamp" @click="showPopup" id="findLight">{{$t('m.lightDetailPage.findLight')}}</div>
         </div>
-        <div class="pase" v-if="isPase">
+        <div class="pase" v-if="lightDetail.expired">
           已过期
         </div>
-        <div class="shade" v-if="isPase"></div>
+        <div class="shade" v-if="lightDetail.expired">
+
+        </div>
       </div>
 
       <!--  实时影像窗口   -->
-      <van-overlay :show="movieShow" z-index="0" />
-      <van-popup v-model = 'movieShow' :overlay="false" >
-        <div class="moviePopup">
+      <van-overlay :show="movieShow" z-index="0"/>
+      <van-popup v-model = 'movieShow' :overlay="false"  >
+        <div class="moviePopup" style="position: relative;  z-index:999;">
           <video id="myVideo"
                  class="video-js vjs-default-skin vjs-big-play-centered"
                  autoplay
@@ -68,7 +73,6 @@
                  style="width:100%; height: 70%"
 
           >
-<!--            <source src="http://ivi.bupt.edu.cn/hls/cctv3hd.m3u8"  type="application/x-mpegURL"/>-->
             <source  :src="seeMovieUrl" type="application/x-mpegURL"/>
           </video>
         </div>
@@ -80,20 +84,6 @@
         <div class="movieLamp" @click="showMusicStrat">{{$t('m.lightDetailPage.findLight')}}</div>
       </div>
 
-<!--      <van-popup v-model="movieShow" overlay>-->
-<!--        <div class="moviePopup">-->
-<!--&lt;!&ndash;          <video src="http://hls01open.ys7.com/openlive/temp.hd.m3u8?t=JquXRnYe1oLKDVEcCBEAgnza-PBOMezeV0FJMuqJiT-BAvH6SH3NyEO40Dur5mCe"&ndash;&gt;-->
-<!--&lt;!&ndash;          controls&ndash;&gt;-->
-<!--&lt;!&ndash;          autoplay>&ndash;&gt;-->
-<!--&lt;!&ndash;          </video>&ndash;&gt;-->
-<!--          <video id="muVideo" class="video-js vjs-default-skin vjs-big-play-centered"-->
-<!--          controls-->
-<!--          preload="auto"-->
-<!--          >-->
-<!--            <source id="source" src="http://hls01open.ys7.com/openlive/2f3fd91a2f7542498df4e53cca388191.hd.m3u8"  type="apalication/x-mpegURL"/>-->
-<!--          </video>-->
-<!--        </div>-->
-<!--      </van-popup>-->
 
       <!--  续灯弹窗    -->
       <van-popup v-model="dialogShow" position="bottom">
@@ -144,7 +134,7 @@
       closeable
       close-icon-position="top-left"
       position="bottom"
-      :style="{ height: '60%' }"
+      :style="{ height: '70%' }"
     >
       <div class="top">
         <!--        <img src="../../assets/images/d_ic_close.png" alt="" @click="closePay">-->
@@ -213,10 +203,10 @@
 
 <script>
   import {post} from "../../utils/request";
-  import {Toast} from 'vant'
+  import {Dialog, Toast} from 'vant'
   import {Popup} from 'vant';
   import '../../assets/css/topNav.css'
-  // import '../../assets/js/ezuikit.js'
+  import '../../assets/js/ezuikit.js'
   import videojs from "video.js"
   import 'video.js/dist/video-js.css'
   import 'videojs-contrib-hls'
@@ -229,6 +219,7 @@
         lightDetail: {},
         yyUrl: "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&text=" + encodeURI('结束了谢谢'),
         code: '', // 寻灯编号
+        templeId: '', //寺庙Id
         lampId: '', // 灯种ID
         totalTime: 0, // 设置寻灯弹窗的显示时间
         movieTime: '', //实时影像定时器ID
@@ -256,7 +247,9 @@
         urlData: '',
         movieTotalTime: '',//設置影像視頻的顯示時間
         lampCategoryId: '',
-        lightUrl: ''//轮播图图片地址
+        lightUrl: '',//轮播图图片地址
+        player: '', //萤石播放器
+        id: ''//灯种Id
       }
     },
 
@@ -266,7 +259,8 @@
         this.isPaySuccessShow = false;
         post('api/pay/orderQuery', {
           "orderId": JSON.parse(window.sessionStorage.getItem('renewOrderId')),
-          "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+          // "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+          "templeId": this.templeId
         }, res => {
           console.log(res);
           if (res.data.code === 200) {
@@ -285,7 +279,8 @@
         if (type === 'ok') {
           post('api/pay/orderQuery', {
             "orderId": JSON.parse(window.sessionStorage.getItem('renewOrderId')),
-            "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+            // "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+            "templeId": this.templeId
           }, res => {
             console.log(res);
             if (res.data.code === 200) {
@@ -301,7 +296,8 @@
         } else {
           post('api/pay/orderQuery', {
             "orderId": JSON.parse(window.sessionStorage.getItem('renewOrderId')),
-            "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+            // "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+            "templeId": this.templeId
           }, res => {
             console.log(res);
             if (res.data.code === 200) {
@@ -370,56 +366,68 @@
       },
       // 立即支付
       nowPay() {
+        // console.log('给钱！！！')
         // 检查是否满足续灯的条件
         post('api/order/checkIsRenewable', {
           lampId: this.$route.query.id,
           userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
         }, res => {
-          console.log(res);
-          if (res.data.code === 200) {
+          // console.log(res);
+          if (res.data.data === true) {
             if (this.radio === '1') {
+              // console.log(this.days,'7457')
               let browserInfo = navigator.userAgent.toLowerCase();
               if (browserInfo.match(/MicroMessenger/i) == 'micromessenger') {
                 post('api/user/getLoginType', {}, res => {
                   if (res.data.code === 200) {
                     if (res.data.data === "wx") {
+                      // console.log('进来了phone')
                       post('api/user/getOpenIdByUser', {}, res2 => {
-                        console.log(res2);
+                        // console.log(res2);
                         // this.$toast(res);
+                        // console.log(this.days, 123456)
                         if (res2.data.code === 200) {
                           this.openId = res2.data.data;
                           post('api/pay/renewPay', {
                             "pilgrimId": this.$route.query.pilgrimId,
                             "deposit": Number(this.needMoney),
-                            "durationQuantity": this.days,
+                            durationQuantity: this.days,
                             "type": "jsapi",
                             "openId": this.openId,
-                            "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                            // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                            "templeId": this.templeId
                           }, res1 => {
-                            console.log(res1);
+                            // console.log(res1);
                             if (res1.data.code === 200) {
-                              this.wxPay(res1.data.data);
+
                             }
                           })
-                        }
+                        } this.wxPay(res1.data.data);
                       });
                     } else {
+                      console.log("openId--------------", this.openId)
                       if (this.openId !== '') {
+                        // console.log('看看',this.days)
                         post('api/pay/renewPay', {
                           "pilgrimId": this.$route.query.pilgrimId,
                           "deposit": Number(this.needMoney),
-                          "durationQuantity": this.days,
+                          // "durationQuantity": sessionStorage.getItem('lampDays'),
+                          durationQuantity: this.days,
                           "type": "jsapi",
                           "openId": this.openId,
-                          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                          // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                          "templeId": this.templeId
                         }, res1 => {
-                          console.log(res1);
+                          // console.log(res1);
                           if (res1.data.code === 200) {
                             this.wxPay(res1.data.data);
                           }
                         })
+
                       } else {
+                        // console.log('omg')
                         location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf7cda5610536583c&redirect_uri=https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2FlightDetail%3Fid%3D'+this.$route.query.id+'%26pilgrimId%3D'+this.$route.query.pilgrimId+'%26money%3D'+this.needMoney+'%26durationQuantity%3D'+this.days+'+&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
+                        // Toast.success('微信登录成功，请续灯')
                       }
                     }
                   }
@@ -452,23 +460,37 @@
                   "durationQuantity": this.days,
                   "type": "h5",
                   "openId": "",
-                  "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                  // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                  "templeId": this.templeId
                 }, res => {
                   console.log(res);
                   // return false;
                   if (res.data.code === 200) {
+                    console.log("000.0.0")
                     location.href = res.data.data.mwebUrl + '&redirect_url=' + 'https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2FlightDetail%3Fid%3D' + this.$route.query.id + '%26pilgrimId%3D' + this.$route.query.pilgrimId + '%26origin%3D1%26orderId%3D' + res.data.data.orderId;
                     window.sessionStorage.setItem('renewOrderId', JSON.stringify(res.data.data.orderId));
                   }
                 });
               }
-            } else {
+            } else if (this.radio === '3') {
+              post('api/pay/renewLinePay', {
+                "pilgrimId": this.$route.query.pilgrimId,
+                "deposit": this.needMoney,
+                "durationQuantity": this.days,
+              }, res => {
+                console.log(res)
+                console.log(res.data)
+                location.href = res.data.data.info.paymentUrl.web
+              })
+            }else {
               this.$toast('该支付方式暂未开放，请重新选择支付方式');
             }
-          } else {
+          }
+          else {
             this.$toast('该灯位已被占用~');
           }
         });
+        console.log('给了给了')
       },
       // 关闭支付
       closePay() {
@@ -479,14 +501,18 @@
         this.dialogShow = false;
         this.payShow = true;
         this.days = this.dayArr[index];
+        sessionStorage.setItem('lampDays', this.days );
         console.log(value);
         console.log(index);
+        console.log(this.days, 'days')
         this.needMoney = value.split('￥')[1];
+        console.log(this.needMoney, '123456789')
         console.log(this.days, Number(this.needMoney));
       },
       // 观看实时影象
 
       seeMovie() {
+        console.log('seemovie')
         Toast.setDefaultOptions({duration: 10000});
         // this.getVideo()
         this.getWebSocket();
@@ -498,17 +524,24 @@
         Toast({
           message: '正在排队中...',
           icon: 'like-o',
-          duration: 2000
+          duration: 10000,
         });
-
+        //console.log(this.player)
         setTimeout(()=> {
           // this.getViewList();
-          console.log('77'+ this.seeMovieUrl)
+          console.log(this.seeMovieUrl, 'seeurl')
+          if(this.seeMovieUrl ) {
+            // console.log('kong')
+            this.movieShow = false;
+            console.log(this.movieShow, '111')
+            Toast('当前观看人数较多，排队中....')
+
+          }
           this.movieShow = true;
 
+          console.log('123456')
+          console.log('排队后' + this.seeMovieUrl)
           //this.save()
-          console.log(this.movieTotalTime)
-          clearInterval(this.movieCutTime);
           this.movieCutTime = setInterval(() => {
             this.movieTotalTime--;
             if (this.movieTotalTime <= 0) {
@@ -522,15 +555,17 @@
 
       },
       getWebSocket() {
+
         let _t = this
         const ws = new WebSocket("wss://www.wenxuanguangmingdeng.com/wss");
+        this.ws = ws
         console.log('開始鏈接')
         let wsData =  {
           "type": "LIVE",
-          "id": 15382674,
-          "templeId": 120,
-          // "id":this.$route.query.id,
-          // "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id,
+          // "id": 15382674,
+          // "templeId": 126,
+          "id":this.$route.query.id,
+          "templeId": this.templeId,
           "userId": JSON.parse(window.localStorage.getItem('selectTempData')).userId
         }
         let wsDataString = JSON.stringify(wsData)
@@ -550,28 +585,16 @@
           };
 
         ws.onmessage = function (evt) {
+          console.log(222, this)
           let url = evt.data;
           _t.seeMovieUrl = url
-          console.log( _t)
-          // let seeMovieObj = JSON.parse(this.seeMovieUrl)
-          // getSeeMovieObj(seeMovieObj)
-          console.log(_t.seeMovieUrl)
-          console.log('數據已接收');
-          //this.getVideo();
+          console.log(url)
           _t.getViewList();
-        };
-        // let seeMovieObj = function actionSeeMovie(val) {
-        //   this.seeMovieUrl = JSON.stringify(val)
-        //   console.log(this.seeMovieUrl+ '111')
-        // }
-        // let getSeeMovieObj = seeMovieObj.bind(this);
-        ws.onclose = function() {
-          console.log('連接已關閉')
-        }
-        //this.seeMovieUrl = _t.seeMovieUrl
-        //console.log('ll'+ this.seeMovieUrl)
-      },
+          ws.close()
+          console.log('數據已接收');
 
+        };
+      },
 
       //关闭影像窗口
       closeMoviePopup() {
@@ -587,8 +610,8 @@
               let welcomeWords = document.getElementById('welcome');
               welcomeWords.pause();
             }
-        let bgm = document.getElementById('wish');
-        bgm.pause();
+        // let bgm = document.getElementById('wish');
+        // bgm.pause();
 
 
         // if (!this.isPlayMusic) {
@@ -617,28 +640,11 @@
         //     bgm.play();
         //   }
         // }
-
         post('api/lamp/recoverCamera', {
           lamp: param
         }, res => {
           console.log(res)
         })
-      },
-
-      //配置video.jsVideo
-      getVideo() {
-        videojs("myVideo", {
-          bigPlayButton: true,
-          textTrackDisplay: false,
-          errorDisplay: false,
-          autoPlay: true,
-          hls: {
-            withCredentials: true
-          }
-        }, function () {
-          this.play();
-        })
-        console.log('video2')
       },
 
       //请求数据，拿到视频流
@@ -651,44 +657,8 @@
           type: 'application/x-mpegURL',
           src: 'seeMovieUrl'
         })
-        console.log(this.seeMovieUrl)
-        // post('api/lamp/getVideo', {
-        //   // "deviceSerial": "D82674077",
-        //   // "channelNo": "1",
-        //   // "expireTime": "300"
-        //   "id":this.$route.query.id,
-        //   "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
-        //     },
-        //   res => {
-        //       let url = res.data.data
-        //       this.seeMovieUrl = url
-        //       //this.urlData =  this.seeMovieUrl.substring(0, this.seeMovieUrl.indexOf('?'))
-        //       //console.log(this.seeMovieUrl)
-        //       let myPlayer = videojs('myVideo')
-        //       myPlayer.src({
-        //         type: 'application/x-mpegURL',
-        //         src: 'seeMovieUrl'
-        //       })
-        //     //myPlayer.play()
-        // })
       },
-      //请求数据，拿到视频流
-      // getViewList() {
-      //   post('api/cameraControl/getLiveBroadcastAddress', {
-      //     "deviceSerial": "D82674077",
-      //       "channelNo": "1",
-      //       "expireTime": "300"
-      //   }, res => {
-      //     let url = res.data;
-      //     this.seeMovieUrl = url;
-      //     //console.log(this.seeMovieUrl.data)
-      //     console.log(this.myVideo)
-      //     this.myVideo.src({
-      //       src:'http://hls01open.ys7.com/openlive/2f3fd91a2f7542498df4e53cca388191.hd.m3u8',
-      //       type: 'application/x-mpegURL'
-      //     })
-      //   })
-      // },
+
 
       // 点击续灯显示对话框
       renew() {
@@ -777,6 +747,14 @@
         this.isShow = true;
         let str = this.lightDetail.pilgrimRealName + '祝您' + this.lightDetail.lampStandBlessing;
         this.yyUrl = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&text=" + encodeURI(str);
+        post('api/lamp/flash',
+        {
+          "lamp": {
+            "id": this.$route.query.id,
+          }
+        } , res => {
+          console.log(res)
+          })
         clearInterval(this.cutTime);
         this.cutTime = setInterval(() => {
           this.totalTime--;
@@ -846,9 +824,9 @@
           }
         });
         this.$nextTick(() => {
-          let bgm = document.getElementById('wish');
-          bgm.load();
-          bgm.pause();
+          // let bgm = document.getElementById('wish');
+          // bgm.load();
+          // bgm.pause();
         });
         clearInterval(this.cutTime);
 
@@ -943,10 +921,12 @@
                     post('api/pay/renewPay', {
                       "pilgrimId": this.$route.query.pilgrimId,
                       "deposit": Number(this.$route.query.money),
+                      // "durationQuantity": sessionStorage.getItem('lampDays'),
                       "durationQuantity": this.$route.query.durationQuantity,
                       "type": "jsapi",
                       "openId": this.openId,
-                      "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                      // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                      "templeId": this.templeId
                     }, res1 => {
                       console.log(res1);
                       if (res1.data.code === 200) {
@@ -986,12 +966,15 @@
         console.log(res);
         this.lightDetail = res.data.data;
         this.lightUrl = []
-        this.lightUrl = this.lightDetail.lampCategoryImage.split(',')
+        this.lightUrl = this.lightDetail.lampCategoryDisplayImage.split(',')
+        this.templeId = this.lightDetail.templeId
+        console.log(this.templeId, "templeId")
         console.log(this.lightUrl);
         // 对时间格式的处理，判断当前是否过期
+        this.lightDetail.endLightAt = this.lightDetail.endLightAt.replace(/\-/g, '/')
         let currentTime = new Date().getTime();
         let endTime = new Date(this.lightDetail.endLightAt).getTime();
-        console.log(currentTime, endTime);
+        console.log(currentTime, endTime, '过期');
         if (currentTime >= endTime) {
           this.isPase = true;
         }
@@ -999,10 +982,12 @@
         post('api/lampGoods/findByLampId', {lampId: this.lightDetail.id}, res => {
           console.log(res);
           this.lampSelect = res.data.data;
-          console.log(this.lampSelect);
+          console.log(123,this.lampSelect);
           this.lampCategoryId = this.lampSelect[0].lampCategory.id
+          console.log(this.lampCategoryId)
           //console.log(this.lampCategoryId);
           // 续灯选择器相关配置项的处理
+          this.columns = [];
           this.lampSelect.forEach((item, index) => {
             let price = '';
             if (!this.lightDetail.important) {
@@ -1011,24 +996,35 @@
               price = item.vipPrice
             }
             let newItem = item.durationName + '￥' + price;
-            this.columns = [];
+            // this.columns = [];
             this.columns.push(newItem);
-            console.log(this.columns);
+            console.log(111,this.columns);
             this.dayArr.push(item.durationQuantity);
           });
-          console.log(this.columns);
-          console.log(this.dayArr);
+          console.log(222,this.columns);
+          console.log(333,this.dayArr);
+          // post('api/lampCategory/findById',{id: this.lampCategoryId }, res => {
+          //   console.log("lamp" , res.data)
+          //   let list = res.data.data
+          //   })
         });
       });
+
+      // post('api/lampCategory/findById',{id: this.lampCategoryId }, res => {
+      //   console.log("lamp" , res.data)
+      // })
+
       // 获取寻灯弹窗的显示时间
-      post('api/configuration/findByTempleId', {templeId: JSON.parse(window.localStorage.getItem('selectTempData')).id}, res => {
+      post('api/configuration/findByTempleId', {templeId:this.templeId}, res => {
         console.log(res);
         if (res.data.code === 200) {
           this.totalTime = res.data.data.h5ShowWindowTime;
           this.movieTotalTime = res.data.data.showVideoTime
           console.log(this.movieTotalTime)
+          //this.id = res.data.data
           window.sessionStorage.setItem('totalTime',JSON.stringify(this.totalTime));
           window.sessionStorage.setItem('movieTotalTime',JSON.stringify(this.movieTotalTime));
+
         }
       });
       if (this.isShow) {
@@ -1050,19 +1046,7 @@
           this.changePlayImg();
         })
       }
-      // this.getWebSocket();
       let _t = this;
-      // this.getVideo()
-      // setTimeout(() => {
-      //   _t.getVideo();
-      //   console.log('video1')
-      // },300)
-      // this.getViewList()
-      // this.$nextTick(() => {
-      //   this.getVideo();
-      //   console.log('video1')
-      // });
-      // this.getViewList()
       videojs("myVideo", {
         bigPlayButton: true,
         textTrackDisplay: false,
@@ -1075,10 +1059,22 @@
         this.play();
       })
     },
+    updated() {
+      if (this.radio === '3') {
+        if (localStorage.getItem('environment') === 'weixin') {
+          Dialog.alert({
+            message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
+          }).then(() => {
+            this.radio = '1'
+          });
+
+        }
+      }
+    },
     destroyed() {
       window.sessionStorage.removeItem('totalTime');
       window.sessionStorage.removeItem('movieTotalTime')
-    }
+    },
   }
 </script>
 
@@ -1089,37 +1085,63 @@
     background-color: #F5F5F5;
     width: 100%;
   }
-
+  .lampMessage {
+    position: relative;
+  }
+  .tag {
+    width: 1.8rem;
+    height: 0.9rem;
+    background-image: url("../../assets/images/d_ic_chunk.png");
+    background-size: cover;
+    margin-left: 0.6rem;
+    margin-top: 0.36rem;
+    margin-bottom: 0.36rem;
+    font-size: 0.44rem;
+    font-family: PingFang SC;
+    font-weight: 300;
+    color: rgba(255, 254, 254, 1);
+    line-height: 0.72rem;
+    text-align: center;
+    position: absolute;
+    top: 0.25rem;
+    left: 0.5rem;
+  }
   .container {
     .top {
       width: 100%;
-      height: 6.8rem;
+      height: 5.8rem;
 
       img {
         width: 100%;
-        height: 6.8rem;
+        height: 5.8rem;
       }
     }
 
     .welcome {
       width: 100%;
-      height: 4.2rem;
+      height: 3.2rem;
       /*background-color: #00B1E4;*/
       color: #885022;
       text-align: center;
       overflow: hidden;
 
       .title {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         font-family: PingFangSC-Regular;
-        margin-top: 0.88rem;
-        margin-bottom: 0.4rem;
+        margin-top: 0.08rem;
+        margin-bottom: 0.18rem;
         font-weight: bold;
       }
 
       .content {
-        font-size: 0.6rem;
+        font-size: 0.5rem;
+        padding-left: 0.18rem;
+        padding-right: 0.18rem;
         font-family: PingFangSC-Light;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display:-webkit-box;
+        -webkit-box-orient:vertical;
       }
     }
 
@@ -1157,7 +1179,7 @@
     .main {
       font-size: 0.56rem;
       color: #666666;
-      margin-top: 1rem;
+      margin-top: 0.8rem;
       margin-left: 1.04rem;
 
       p {
@@ -1196,7 +1218,7 @@
       height: 2rem;
       position: fixed;
       left: 50%;
-      bottom: 1.16rem;
+      bottom: 0.58rem;
       transform: translateX(-50%);
       color: #885022;
       font-size: 0.72rem;
@@ -1224,8 +1246,8 @@
       background-image: url("../../assets/images/b_btn_pay.png");
       background-size: cover;
       border-radius: 0.2rem;
-      position: absolute;
-      bottom: 1.28rem;
+      position: fixed;
+      bottom: 0.58rem;
       left: 50%;
       transform: translateX(-50%);
       font-size: 0.72rem;
@@ -1235,8 +1257,8 @@
     .shade {
       height: 2rem;
       width: 13.08rem;
-      position: absolute;
-      bottom: 1.28rem;
+      position: fixed;
+      bottom: 0.58rem;
       left: 50%;
       transform: translateX(-50%);
       background-color: #999999;
@@ -1320,7 +1342,7 @@
   }
 
   .moviePopup {
-    width:13.08rem;
+    width:15rem;
     height: auto;
   }
 

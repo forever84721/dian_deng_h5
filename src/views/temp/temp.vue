@@ -251,19 +251,26 @@
                 window.localStorage.removeItem('templeId');
               } else {
                 post('api/temple/findById', {id: this.selectedTempId}, res => {
-                  this.tempData = res.data.data;
-                  this.getUrl()
-                  post('api/lampCategory/findWithTempleId', {templeId: this.tempData.id}, res => {
-                    console.log(res);
-                    this.lampList = res.data.data;
-                    console.log(this.lampList);
-                    // this.showHeight = document.body.clientHeight - 50;
-                  });
-                  this.tempData.userId = JSON.parse(window.localStorage.getItem('userMsg')).id;
-                  window.localStorage.setItem('selectTempData', JSON.stringify(this.tempData));
-                  this.show = true;
-                  this.tempData = JSON.parse(window.localStorage.getItem('selectTempData'));
-                  console.log(this.tempData);
+                  console.log(res.data.data.enable,'enable0')
+                  if(res.data.data.enable) {
+                    console.log(res.data.data.enable,'enable')
+                    this.tempData = res.data.data;
+                    this.getUrl()
+                    post('api/lampCategory/findWithTempleId', {templeId: this.tempData.id}, res => {
+                      console.log(res);
+                      this.lampList = res.data.data;
+                      console.log(this.lampList);
+                      // this.showHeight = document.body.clientHeight - 50;
+                    });
+                    this.tempData.userId = JSON.parse(window.localStorage.getItem('userMsg')).id;
+                    window.localStorage.setItem('selectTempData', JSON.stringify(this.tempData));
+                    this.show = true;
+                    this.tempData = JSON.parse(window.localStorage.getItem('selectTempData'));
+                    console.log(this.tempData);
+                  }else {
+                    this.show =false
+                  }
+
                 })
               }
             }
@@ -277,16 +284,35 @@
                  window.localStorage.removeItem('selectTempData');
                   this.getUrl()
                 }else {
-                  this.show = true;
-                  this.tempData = JSON.parse(window.localStorage.getItem('selectTempData'));
-                  console.log(this.tempData);
-                  post('api/lampCategory/findWithTempleId', {templeId: this.tempData.id}, res => {
-                    console.log(res);
-                    this.lampList = res.data.data;
-                    console.log(this.lampList);
-                    this.getUrl()
+                  post('api/temple/findById', {id: JSON.parse(window.localStorage.getItem('selectTempData')).id}, res => {
+                    console.log(res.data.data.enable,'enable2')
+                    if(res.data.data.enable) {
+                      console.log(res.data.data.enable,'enable3')
+                      this.tempData = res.data.data;
+                      this.getUrl()
+                      post('api/lampCategory/findWithTempleId', {templeId: this.tempData.id}, res => {
+                        console.log(res);
+                        this.lampList = res.data.data;
+                        console.log(this.lampList,'list');
+                        // this.showHeight = document.body.clientHeight - 50;
+                      });
+                      this.tempData.userId = JSON.parse(window.localStorage.getItem('userMsg')).id;
+                      window.localStorage.setItem('selectTempData', JSON.stringify(this.tempData));
+                      this.show = true;
+                      this.tempData = JSON.parse(window.localStorage.getItem('selectTempData'));
+                      console.log(this.tempData);
+                    }
+                  })
+                  // this.show = true;
+                  // this.tempData = JSON.parse(window.localStorage.getItem('selectTempData'));
+                  // console.log(this.tempData);
+                  // post('api/lampCategory/findWithTempleId', {templeId: this.tempData.id}, res => {
+                  //   console.log(res);
+                  //   this.lampList = res.data.data;
+                  //   console.log(this.lampList);
+                  //   this.getUrl()
                     // this.showHeight = document.body.clientHeight - 50;
-                  });
+                  // });
                 }
               }
             });

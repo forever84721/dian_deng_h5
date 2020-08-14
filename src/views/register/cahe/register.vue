@@ -179,6 +179,9 @@
             console.log(res);
             if (res.data.code == 200) {
               this.$router.push({name: "set-password", query: {phone: this.phone}});
+              if(localStorage.getItem("selectTempData")) {
+                localStorage.removeItem("selectTempData")
+              }
             } else {
               this.$toast(res.data.message);
             }

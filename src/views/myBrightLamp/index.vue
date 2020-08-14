@@ -5,10 +5,10 @@
     />
     <div class="showList" v-if="show" :style="{height:showHeight+'px'}">
       <div :class="['card',item.endTime <= currentTime ? 'closed' :'']" v-for="(item,index) in lampList" :key=index @click="toDetail(item)">
-        <div class="tag" v-if="item.important && item.endTime > currentTime">
+        <div class="tag" v-if="item.important && !item.expired">
           贵宾
         </div>
-        <div class="outDate" v-if="item.endTime <= currentTime">
+        <div class="outDate" v-if="item.expired">
           已过期
         </div>
         <div class="cardImg">
@@ -73,6 +73,7 @@
     },
     mounted() {
       this.currentTime = new Date().getTime();
+      console.log(this.currentTime, "45")
       // 设置屏幕可用区域高度
       this.showHeight=document.body.clientHeight-96;
       // window.onresize=function () {
@@ -85,11 +86,11 @@
         if(res.data.code === 200 ){
           this.lampList = res.data.data;
           //适配微信浏览器
-          if(localStorage.getItem('environment') === 'weixin') {
+          if(localStorage.getItem('environment') === 'weixin' || localStorage.getItem('environment') === 'ios') {
             console.log('weixin')
             this.lampList.forEach((item,index)=> {
             console.log(item.endAt);
-            item.endAt = item.endAt.replace(/\-/g, '/');
+            item.endAt = item.endAt.replace(/-/g, '/');
             console.log(item.endAt)
             item.endTime = new Date(item.endAt)
 
@@ -99,10 +100,10 @@
           }else {
             this.lampList.forEach((item,index)=> {
               console.log(item.endAt)
-              item.endTime = new Date(item.endAt)
+              item.endTime = new Date(item.endAt).getTime();
 
               // item.endTime = new Date(item.endAt).getTime();
-              console.log(item.endTime)
+              console.log(item.endTime,)
             });
           }
           console.log(this.lampList);
@@ -115,7 +116,60 @@
           this.show = !this.show;
         }
       });
+      // line续灯的调用监听
+      if (location.href.indexOf("transactionId") !== -1) {
+        post('api/order/linePayRenewConfirm',{
+          "transactionId": this.$route.query.transactionId,
+          "money": this.$route.query.money,
+          "pilgrimId": this.$route.query.pilgrimId,
+          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id,
+          "durationQuantity": this.$route.query.durationQuantity ,
+          "accountId": JSON.parse(localStorage.getItem("userMsg")).id,
+        }, res => {
+          console.log(res)
+          if (res.data.data === true) {
+            post('api/lamp/findByUser',{},res => {
+              console.log(res);
+              if(res.data.code === 200 ){
+                this.lampList = res.data.data;
+                //适配微信浏览器
+                if(localStorage.getItem('environment') === 'weixin') {
+                  console.log('weixin')
+                  this.lampList.forEach((item,index)=> {
+                  console.log(item.endAt);
+                  item.endAt = item.endAt.replace(/\-/g, '/');
+                  console.log(item.endAt)
+                  item.endTime = new Date(item.endAt)
 
+                  item.endTime = new Date(item.endAt).getTime();
+                  console.log(item.endTime)
+                });
+                }else {
+                  this.lampList.forEach((item,index)=> {
+                    console.log(item.endAt)
+                    item.endTime = new Date(item.endAt)
+
+                    // item.endTime = new Date(item.endAt).getTime();
+                    console.log(item.endTime)
+                  });
+                }
+                console.log(this.lampList);
+                if(this.lampList.length === 0){
+                  this.show = !this.show;
+                  this.tip = '您还没有明灯呢，快去点灯吧';
+                }
+              }else if(res.data.code === 400){
+                // this.$toast('登录失效，请重新登录');
+                this.show = !this.show;
+              }
+            });
+            Toast("续灯成功")
+          }else {
+            Toast("续灯失败")
+          }
+
+        })
+      }
       // post('api/pilgrim/findByUserIdAndTempleIdOrderByStartLightAtDesc',
       //   {templeId:JSON.parse(window.localStorage.getItem('selectTempData')).id},
       //   res => {

@@ -43,7 +43,13 @@
           this.$toast('请输入反馈内容！');
           return false;
         }
-        post('api/advice/save',{advice:{content:this.message}},res => {
+        let param = {
+          "content": this.message,
+          "temple":{
+            "id":  JSON.parse(localStorage.getItem('selectTempData')).id
+          }
+        }
+        post('api/feedback/save',{"feedback":param},res => {
           console.log(res);
           if(res.data.code === 200) {
             this.message='';

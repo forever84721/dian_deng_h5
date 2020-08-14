@@ -34,7 +34,7 @@
         <div class="seatList_left">
           <ul>
             <li v-for="(item,index) in seatDetailList" :key="index"
-                :class="[index !== seatDetailList.length - 1 ? 'li_style' : '']">{{index+1}}
+                :class="[index !== seatDetailList.length - 1 ? 'li_style' : '']" >{{index+1}}
             </li>
           </ul>
         </div>
@@ -43,7 +43,7 @@
                :class="[index1 !== seatDetailList.length - 1 ? 'li_style' : '','row_style']">
             <ul>
               <li id="seat" :data-id="item2.number" v-for="(item2,index2) in item1" :key="index2"
-                  @click="selectSeat(item2,$event)" :class="[item2.serviceStatus === 'servicing' ? 'seatStatus' : '']">
+                  @click="selectSeat(item2,$event)" class='seatDemo' :class="{'isBlock': item2.ignore, 'seatStatus': item2.serviceStatus === 'servicing'}">
                 {{item2.important+'' === 'true' ? 'VIP' : '' }}
               </li>
             </ul>
@@ -478,7 +478,7 @@
         }
 
         .seatList_right {
-          float: left;
+          /*float: left;*/
           width: 84%;
           padding: 0.6rem 0;
           box-sizing: border-box;
@@ -613,14 +613,21 @@
       margin-bottom: 0.32rem;
     }
 
-    .seatStatus {
-      background-image: url("../../assets/images/b_btn_wick_s.png");
-      background-size: cover;
+    .seatDemo {
+      &.seatStatus {
+        background-image: url("../../assets/images/b_btn_wick_s.png");
+        background-size: cover;
+      }
+      &.selectStatus {
+        background-image: url("../../assets/images/b_btn_chooselamp_s.png");
+        background-size: cover;
+      }
+      &.isBlock {
+        visibility: hidden;
+      }
     }
-
-    .selectStatus {
-      background-image: url("../../assets/images/b_btn_chooselamp_s.png");
-      background-size: cover;
+    .visibilityStatus {
+      visibility: hidden;
     }
   }
 </style>

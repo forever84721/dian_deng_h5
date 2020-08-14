@@ -199,6 +199,8 @@
         console.log(1);
         console.log(this.quantity);
         console.log(value, detail);
+        console.log(this.seatList, '菜单信息')
+        console.log(this.chooseSeatList, '111')
         if (this.showText === '') {
           this.$toast('请先选择规格!');
           console.log(this.quantity);
@@ -234,47 +236,50 @@
         if (this.radio === '自选灯位') {
           return false;
         } else {
-          console.log(this.lampSelect);
+          console.log(this.lampSelect, '111');
           this.isDisable = false;
           this.quantity = 1;
           this.selectStandardId = item.duration.id;
           this.ifSelectNum = index;
-          console.log(this.selectStandardId);
+          console.log(this.selectStandardId, "789");
           this.showText = item.duration.name;
           this.days = item.duration.quantity;
           post('api/lampGoods/findByDurationIdAndLampCategoryId', {
             durationId: this.selectStandardId,
             lampCategoryId: this.$route.query.lampCategoryId
           }, res => {
-            console.log(res);
+            console.log(res, '222');
             this.priceList.vipPrice = res.data.data.vipPrice;
             this.priceList.standardPrice = res.data.data.standardPrice;
             this.lampGoodId = res.data.data.id;
           });
           // this.price = item.vipPrice;
           // this.totalMoney = this.quantity * this.price;
-          console.log(this.chooseSeatList);
+          console.log(this.chooseSeatList, '333');
           console.log(this.quantity);
-          console.log(111111111,!this.isChangeQuantity);
+          console.log("111111111",!this.isChangeQuantity);
           if(!this.isChangeQuantity){
             post('api/lamp/saveLampsWithRandom', {
               "lampHolderId": this.$route.query.lampHolderId,
               "quantity": this.quantity
             }, res => {
-              console.log(res);
+              // console.log(res, 'savelampwith');
               if (res.data.code === 200) {
                 this.chooseSeatList = [];
+
+                console.log(res.data.data, 'savalamp')
                 res.data.data.forEach((item, index) => {
                   let obj = {};
                   obj.id = item.id;
                   obj.number = item.number;
                   if (!item.important) {
                     obj.price = this.priceList.standardPrice;
+                    
                   } else {
                     obj.price = this.priceList.vipPrice;
                   }
                   this.chooseSeatList.push(obj);
-                  console.log(this.chooseSeatList);
+                  console.log(this.chooseSeatList, 'obj');
                 })
               }else {
                 this.$toast(res.data.message)
@@ -518,7 +523,7 @@
           //   this.seatList.push(item.id);
           //   // this.totalMoney = item.price + this.totalMoney;
           // });
-          console.log(this.seatList, this.totalMoney);
+          console.log(this.seatList, this.totalMoney, 'mounted');
           this.quantity = this.chooseSeatList.length;
         }else {
           if (this.showText === '') {
@@ -548,11 +553,13 @@
         // }
         // this.totalMoney = price;
         this.totalMoney = 0;
+        this.seatList = []
         this.chooseSeatList.forEach((item, index) => {
           this.totalMoney = Number(item.price) + this.totalMoney;
           this.seatList.push(item.id);
         });
         console.log(this.totalMoney);
+        console.log(this.seatList, "money")
         return this.totalMoney;
       }
     },
@@ -583,7 +590,7 @@
                   obj.price = this.priceList.vipPrice;
                 }
                 this.chooseSeatList.push(obj);
-                console.log(this.chooseSeatList);
+                console.log(this.chooseSeatList, 'watch');
               })
             }else {
               this.$toast(res.data.message)

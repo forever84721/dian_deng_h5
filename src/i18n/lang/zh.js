@@ -13,7 +13,9 @@ export const m = {
       old:'年齡'
     },
     consumePower:'消费排行榜',
+    consumeSetting: '排行设置',
     setting: '设定',
+    pay: '支付',
     safe:'账号与安全',
     verify:'验证手机号',
     bindNewTel:'绑定新手机号',
@@ -38,7 +40,8 @@ export const m = {
       language_2: '中文繁体'
     },
     serviceLog:'服务记录',
-    checkOrder:'查看订单'
+    checkOrder:'查看订单',
+    helpMsg: '帮助详情'
   },
   // 底部导航栏
   footerNav: {
@@ -51,12 +54,14 @@ export const m = {
   temp: {
     lampServe:'点灯服务',
     onlineLamp:'在线点灯',
+    selectTemp: '选择寺庙',
     temp_1:'您还没有选择寺庙',
     temp_2:'快去选寺庙吧',
     temp_3:'选寺庙'
   },
   //  灯种详情
   lampDetail: {
+    lampDetail: '灯种详情',
     onlineLamp:'线上点灯',
     select:'规格',
     needLamp:'我要点灯',
@@ -64,6 +69,7 @@ export const m = {
   },
   // 灯位菜单
   lampMenu:{
+    lampMenu: '灯位菜单',
     pro:'护佑点灯信众元辰光彩、进福纳吉、财源广进、事业发达、添福添寿。祈求信徒2019年平安顺遂吉祥纳福',
     lightDetail:'点灯详情',
     num:'数量',
@@ -79,17 +85,20 @@ export const m = {
   },
   //  活动中心
   activeCenter:{
+    activeCenter: '活动中心',
     activeMessage:'活动消息'
   },
   thanks:'感谢状',
   thankMessage:'至深感谢  状表谢忱',
   donateMoney:'捐赠香油钱',
+  donateSuccess:'捐赠成功',
   setting: '设定',
   brightLampDetail:'明灯详情',
   login:'登录',
   register:'注册',
   forgetPsd:'忘记密码',
   setPsd:'设置密码',
+  newPsd: '新密码',
   lightDetailPage: {
     hi:'您好，欢迎您来点灯',
     bless:'祝您身体健康、万事如意、元辰光彩',
@@ -116,7 +125,9 @@ export const m = {
   anDonStartTime:'安灯开始时间',
   anDonEndTime:'安灯结束时间',
   orderInfo:'订单信息',
+  orderMsg: '订单详情',
   orderMoney:'订单金额',
   orderNum:'订单编号',
-  createTime:'创建时间'
+  createTime:'创建时间',
+  lampSuccess: '点灯成功'
 }

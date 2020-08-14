@@ -39,13 +39,14 @@ if (ua.match(/MicroMessenger/i) == 'micromessenger') {
   // console.log('非微信')
 }
 
-import {Lazyload,Swipe,SwipeItem} from "vant";
+import {Lazyload,Swipe,SwipeItem,Dialog} from "vant";
 import 'vant/lib/index.css'
 
 Vue.use(Vant)
 Vue.use(Lazyload)
 Vue.use(Swipe)
 Vue.use(SwipeItem)
+Vue.use(Dialog)
 Vue.use(VueBetterScroll)
 Vue.config.productionTip = false
 
@@ -60,8 +61,8 @@ import 'videojs-contrib-hls'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  router,
   i18n,
+  router,
   store,
   components: { App },
   template: '<App/>'

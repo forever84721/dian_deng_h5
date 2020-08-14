@@ -47,6 +47,17 @@
       确认支付
     </div>
 
+<!--    <van-overlay :show="overlayShow" @click="overlayClick">-->
+<!--      <template #default>-->
+<!--        <div class="wrapper" @click.stop style="height:100px;width:100px;">-->
+<!--          <div class="block" />-->
+<!--          &lt;!&ndash;          由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤点击右上角的按钮，然后点击在浏览器中打开）&ndash;&gt;-->
+<!--        </div>-->
+        <!--      <div>111</div>-->
+<!--      </template>-->
+
+<!--    </van-overlay>-->
+
     <van-dialog v-model="show" :show-cancel-button="false" :showConfirmButton="false" class="isPay">
       <template slot="default">
         <div class="problem">
@@ -69,6 +80,7 @@
 <script>
   import '../../assets/css/topNav.css'
   import {post} from '@/utils/request/index'
+  import {Dialog} from 'vant'
 
   export default {
     name: 'pay',
@@ -79,7 +91,8 @@
         orderId: '',
         show: false,
         openId: '',
-        cellphone: ''
+        cellphone: '',
+        overlayShow: false,
       }
     },
     methods: {
@@ -301,14 +314,26 @@
           }
         }
         else if(this.radio === '3') {
-          console.log('radio2')
-          post('line/pay/linePay', {
-            "orderId": this.orderId,
-            "deposit": this.money,
-          }, res => {
-            console.log(res.data.info.paymentUrl.web)
-            location.href= res.data.info.paymentUrl.web;
+          console.log('radio3')
+          post('api/beneficiary/encryptionKeyAndSecret' ,
+            {
+              "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+            } ,res1 => {
+              console.log('encry', res1)
+              // let secret = res1.data.data.secret;
+              // let key = res1.data.data.key;
+              post('line/pay/linePay', {
+                "orderId": this.orderId,
+                "deposit": this.money,
+                "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id,
+                "channelId": res1.data.data.appKey,
+                "secretKey": res1.data.data.appSecret,
+              }, res => {
+                console.log(res.data.info.paymentUrl.web)
+                location.href= res.data.info.paymentUrl.web;
+              })
           })
+
         }
         else{
           this.$toast('该支付方式暂未开放，请重新选择支付方式');
@@ -324,7 +349,11 @@
           }
         }
         return -1;
-      }
+      },
+      // overlayClick () {
+      //   this.overlayShow = false;
+      //   this.radio = '1'
+      // }
     },
     mounted() {
       post('api/user/get', {}, res => {
@@ -413,10 +442,53 @@
       }
       // console.log(window.sessionStorage.getItem('paySuccess'),this.orderId);
       console.log(location.href, location.href.indexOf('redirect_url') !== -1);
+      console.log(123,this.$route.query)
       if (!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId)) {
         if (location.href.indexOf('origin') !== -1) {
           // this.$toast(1);
           this.show = true;
+        }
+      }
+      //line支付监听回调地址
+      let transactionId = this.$route.query.transactionId
+      console.log(transactionId)
+      if (location.href.indexOf('transactionId') !== -1) {
+        console.log(this.$route.query.orderId)
+        let transactionId = this.$route.query.transactionId
+        console.log(transactionId)
+        let that = this;
+        this.orderId = this.$route.query.orderId
+        post('api/order/linePayConfirm', {
+          transactionId: transactionId,
+          money: this.$route.query.money,
+          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+        } , res => {
+          // console.log(typeof(res.data))
+          console.log(res.data)
+          if (res.data.data === true) {
+            that.$toast('支付成功');
+            if(window.sessionStorage.getItem('orderInfo')){
+              window.sessionStorage.removeItem('orderInfo');
+            }
+            // window.sessionStorage.setItem('paySuccess', that.orderId);
+            window.sessionStorage.setItem('paySuccess', that.orderId);
+            that.$router.push({path: '/blessMessage', query: {orderId: that.orderId}});
+          }else {
+            that.$toast('支付失败');
+            that.$router.push({path: '/orderDetail', query: {orderId: that.orderId}});
+          }
+        })
+      }
+    },
+    updated() {
+      if (this.radio === '3') {
+        if (localStorage.getItem('environment') === 'weixin') {
+          Dialog.alert({
+            message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
+          }).then(() => {
+            this.radio = '1'
+          });
+
         }
       }
     },
@@ -464,7 +536,19 @@
       margin-bottom: 1.24rem;
     }
   }
+  /*.wrapper {*/
+  /*  display: flex;*/
+  /*  align-items: center;*/
+  /*  justify-content: center;*/
+  /*  background-color: yellow;*/
+  /*  height: 100%;*/
+  /*}*/
 
+  /*.block {*/
+  /*  width: 120px;*/
+  /*  height: 120px;*/
+  /*  background-color: #cccccc;*/
+  /*}*/
   .confirmPay {
     position: fixed;
     left: 50%;

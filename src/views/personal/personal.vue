@@ -82,6 +82,9 @@
      onClickLeft() {
        this.$router.go(-1);
      }
+    },
+    created() {
+      console.log(this.$route.meta.title)
     }
   }
 </script>

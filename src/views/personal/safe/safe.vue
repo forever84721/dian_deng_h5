@@ -41,9 +41,15 @@
           v-model="newPhone"
           center
           clearable
-          :label="$t('m.personal.newTel')"
+
           :placeholder="$t('m.personal.pleaseTel')"
         >
+          <template slot="left-icon">
+            <div class="tip">
+              <span>+{{areaCode+area}}</span>
+              <van-icon class="icon" :name="arrow" />
+            </div>
+          </template>
           <van-button slot="button" size="small" @click="getMessageNum">{{$t('m.personal.messageNum')}}</van-button>
         </van-field>
         <van-field
@@ -55,6 +61,7 @@
         >
         </van-field>
       </van-cell-group>
+      <div class="select" @click="selectAreaCode"></div>
       <div class="next" @click="next">
         {{$t('m.personal.bind')}}
       </div>
@@ -94,10 +101,27 @@
         show1: true,
         show2: false,
         show3: false,
-        userInfo: {}
+        userInfo: {},
+        arrow: 'arrow-down',
+        areaCode: '86',
+        area:'中国',
       }
     },
     mounted() {
+      if (this.$route.query.areaCode) {
+        this.areaCode = this.$route.query.areaCode + '';
+        console.log(this.areaCode);
+        if(this.areaCode === '86'){
+          this.area = '中国';
+        }
+        if(this.areaCode === '886'){
+          this.area = '台湾';
+        }
+      }
+      if(location.href.indexOf('show2' )!== -1) {
+        this.show2= true;
+        this.show1= false;
+      }
       post('api/user/get', {}, res => {
         console.log(res);
         if (res.data.code === 200) {
@@ -120,6 +144,8 @@
           post('api/user/sendUpdatePasswordCaptcha', {type: '86', cellphone: this.oldPhone}, res => {
             if (res.data.code === 200) {
               Toast('验证码发送成功')
+            }else {
+              Toast(res.data.message)
             }
             console.log(res);
           })
@@ -130,13 +156,28 @@
             Toast('请先输入您的手机号码');
             return false;
           }
-          if (!(regExpChina.test(this.newPhone)||regExpTw.test(this.newPhone))) {
-            this.errorMessage = '该手机号未注册';
-            return false;
+          if (this.areaCode === '86') {
+            if (!regExpChina.test(this.newPhone)) {
+              Toast('请输入正确的手机号');
+              return false;
+            }
           }
-          post('api/user/sendUpdatePasswordCaptcha', {type: '86', cellphone: this.newPhone}, res => {
+          if (this.areaCode === '886') {
+            if (!regExpTw.test(this.newPhone)) {
+              Toast('请输入正确的手机号');
+              return false;
+            }
+          }
+          // if (!(regExpChina.test(this.newPhone)||regExpTw.test(this.newPhone))) {
+          //   this.errorMessage = '该手机号未注册';
+          //   Toast('请输入正确的手机号');
+          //   return false;
+          // }
+          post('api/user/sendRegisterationCaptcha', {type: this.areaCode, cellphone: this.newPhone}, res => {
             if (res.data.code === 200) {
               Toast('验证码发送成功')
+            } else {
+              Toast(res.data.message)
             }
             console.log(res);
           })
@@ -150,6 +191,14 @@
         } else {
           this.$router.go(-1);
         }
+      },
+      //选择区号
+      selectAreaCode() {
+        // console.log(1);
+        this.$router.push({
+          path: '/chooseAreaCode',
+          query: {origin: 'safe'},
+        });
       },
       next() {
         // Toast('1');
@@ -184,6 +233,9 @@
           }
           post('api/user/checkCaptcha', {cellphone: this.newPhone, captcha: this.newMessageNum}, res => {
             if (res.data.code === 200) {
+              post('api/user/update', {user: localStorage.getItem('userMsg')}, res => {
+                console.log(res, "show3")
+              })
               this.show3 = true;
               this.show2 = false;
             } else {
@@ -212,7 +264,25 @@
     left: 50%;
     transform: translateX(-50%);
   }
-
+  .second {
+    position: relative;
+  }
+  .tip {
+    width: 4rem;
+    z-index: 999;
+  }
+  .icon {
+    display: inline-block;
+    vertical-align: bottom;
+  }
+  .select {
+    background-color: yellow;
+    width: 4rem;
+    height: 44px;
+    background-color: transparent;
+    position: absolute;
+    top: 50px;
+  }
   .thirdly {
     font-size: 0.8rem;
     text-align: center;

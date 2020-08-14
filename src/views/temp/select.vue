@@ -37,7 +37,7 @@
     <div class="showList" :style="'height:'+showListHeight + 'px'">
       <div v-for="(item,index) in templeData" :key="index" class="showTemp" @click="goTempPage(item.id)" v-if="templeData.length !==0">
         <div class="showImg">
-          <img :src="'https://wenxuanguangmingdeng.com/attachment/'+item.cover" alt="">
+          <img :src="'https://wenxuanguangmingdeng.com/attachment/'+item.cover.split(',')[0]" alt="">
         </div>
         <p>{{item.name}}</p>
       </div>
@@ -123,7 +123,8 @@
         // console.log(1);
         console.log(this.searchWord);
         post('api/temple/search',{temple:{
-            name:this.searchWord
+            name:this.searchWord,
+            enable: true
           }},res => {
           console.log(res);
           this.templeData = res.data.data;
