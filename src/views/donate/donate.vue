@@ -57,7 +57,7 @@
               <van-radio slot="right-icon" name="2" checked-color="#9D3024">
               </van-radio>
             </van-cell>
-            <van-cell title="LINE支付" clickable>
+            <van-cell title="LINE支付" clickable v-if="weixinShow">
               <template slot="icon">
                 <div class="iconWay">
                   <img src="../../assets/images/line.png" alt="">
@@ -113,7 +113,8 @@
         errorMsg:'',
         isDonateSuccessShow:false,
         openId:'',
-        userCode:''
+        userCode:'',
+        weixinShow: true,
       }
     },
     methods: {
@@ -383,6 +384,10 @@
       }
     },
     mounted() {
+      let ua = window.navigator.userAgent.toLowerCase()
+      if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+        this.weixinShow = false
+      }
       console.log(location.href);
       if(location.href.indexOf('origin') !== -1){
         // this.$toast(1);

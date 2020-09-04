@@ -98,8 +98,8 @@ export default {
       title: '登录',
       formValidate: {
         errors: [],
-        phone: '',
-        password: '',
+        phone: '13066427869',
+        password: '123456',
       },
       visible: true,
       arrow: 'arrow-down',
@@ -454,6 +454,7 @@ export default {
           console.log(res);
           if (res.data.code == '200') {
             Toast('登录成功');
+            console.log(res, 'login')
             console.log(res);
             let user = {};
             user.id = res.data.data.id;

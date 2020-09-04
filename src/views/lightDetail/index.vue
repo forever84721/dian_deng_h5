@@ -61,22 +61,30 @@
       </div>
 
       <!--  实时影像窗口   -->
-      <van-overlay :show="movieShow" z-index="0"/>
-      <van-popup v-model = 'movieShow' :overlay="false"  >
-        <div class="moviePopup" style="position: relative;  z-index:999;">
-          <video id="myVideo"
-                 class="video-js vjs-default-skin vjs-big-play-centered"
-                 autoplay
-                 controls
-                 muted
-                 preload="auto"
-                 style="width:100%; height: 70%"
+      <van-overlay :show="movieShow" z-index="0" />
+      <van-popup v-model='movieShow' :overlay="false" style="width:12.4rem;height:9.4rem" ref="pop" :lazy-render="false">
+<!--        <div class="moviePopup" style="position: relative;  z-index:999;">-->
+<!--          <video id="myVideo"-->
+<!--                 class="video-js vjs-default-skin vjs-big-play-centered"-->
+<!--                 autoplay-->
+<!--                 controls-->
+<!--                 muted-->
+<!--                 preload="auto"-->
+<!--                 style="width:100%; height: 70%"-->
 
-          >
-            <source  :src="seeMovieUrl" type="application/x-mpegURL"/>
-          </video>
-        </div>
+<!--          >-->
+<!--            <source  :src="seeMovieUrl" type="application/x-mpegURL"/>-->
+<!--          </video>-->
+<!--        </div>-->
+        <!--          src="http://hls01open.ys7.com/openlive/f01018a141094b7fa138b9d0b856507b.hd.m3u8"-->
+        <video id="myPlayer" ref="video"
 
+          width="100%"
+          height="100%"
+          autoplay
+          controls
+        allowfullscreen>
+        </video>
       </van-popup>
       <div class="closeMovie" v-if="movieShow" >
         <div style="margin: 1rem" @click="closeMoviePopup"><img  src="../../assets/images/c_btn_close.png" alt="">
@@ -134,7 +142,7 @@
       closeable
       close-icon-position="top-left"
       position="bottom"
-      :style="{ height: '70%' }"
+      :style="{ height: '75%' }"
     >
       <div class="top">
         <!--        <img src="../../assets/images/d_ic_close.png" alt="" @click="closePay">-->
@@ -165,7 +173,7 @@
               <van-radio slot="right-icon" name="2" checked-color="#9D3024">
               </van-radio>
             </van-cell>
-            <van-cell title="LINE支付" clickable>
+            <van-cell title="LINE支付" clickable v-if="weixinShow">
               <template slot="icon">
                 <div class="iconWay">
                   <img src="../../assets/images/line.png" alt="">
@@ -207,9 +215,9 @@
   import {Popup} from 'vant';
   import '../../assets/css/topNav.css'
   import '../../assets/js/ezuikit.js'
-  import videojs from "video.js"
-  import 'video.js/dist/video-js.css'
-  import 'videojs-contrib-hls'
+  // import videojs from "video.js"
+  // import 'video.js/dist/video-js.css'
+  // import 'videojs-contrib-hls'
 
   export default {
     name: "index",
@@ -249,7 +257,8 @@
         lampCategoryId: '',
         lightUrl: '',//轮播图图片地址
         player: '', //萤石播放器
-        id: ''//灯种Id
+        id: '',//灯种Id
+        weixinShow: true,
       }
     },
 
@@ -399,10 +408,10 @@
                           }, res1 => {
                             // console.log(res1);
                             if (res1.data.code === 200) {
-
+                              this.wxPay(res1.data.data);
                             }
                           })
-                        } this.wxPay(res1.data.data);
+                        }
                       });
                     } else {
                       console.log("openId--------------", this.openId)
@@ -513,34 +522,39 @@
 
       seeMovie() {
         console.log('seemovie')
-        Toast.setDefaultOptions({duration: 10000});
+        console.log(this.movieTotalTime);
+        // Toast.setDefaultOptions({duration: 10000});
         // this.getVideo()
         this.getWebSocket();
         // setTimeout(() =>{
         //   console.log('77'+ this.seeMovieUrl)
         // },0)
-
-
-        Toast({
-          message: '正在排队中...',
-          icon: 'like-o',
-          duration: 10000,
-        });
+        console.log('排队前' + this.seeMovieUrl)
+        // Toast({
+        //   message: '正在排队中...',
+        //   icon: 'like-o',
+        //   duration: 1000,
+        // });
         //console.log(this.player)
         setTimeout(()=> {
           // this.getViewList();
-          console.log(this.seeMovieUrl, 'seeurl')
-          if(this.seeMovieUrl ) {
-            // console.log('kong')
-            this.movieShow = false;
-            console.log(this.movieShow, '111')
-            Toast('当前观看人数较多，排队中....')
-
-          }
+          console.log(this.$refs.video.src, 'video')
+          // console.log(this.seeMovieUrl, 'seeurl')
+          // if(this.seeMovieUrl ) {
+          //   // console.log('kong')
+          //   this.movieShow = false;
+          //   console.log(this.movieShow, '111')
+          //   Toast('当前观看人数较多，排队中....')
+          //
+          // }
           this.movieShow = true;
-
-          console.log('123456')
-          console.log('排队后' + this.seeMovieUrl)
+          // console.log(123123,this.$refs.abc)
+          // console.log( this.$refs.pop, '4145646')
+          // console.log( this.$refs.video, '456')
+          // console.log(document.getElementsByName('video'));
+          // console.log(document.getElementById('myPlayer'))
+          // this.$refs.video.src = "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8 "
+          console.log(this.$refs.video.src, 'video1')
           //this.save()
           this.movieCutTime = setInterval(() => {
             this.movieTotalTime--;
@@ -550,7 +564,7 @@
               //document.getElementById('wish').pause();
             }
           }, 1000);
-        }, 2000);
+        }, 1000);
         this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
 
       },
@@ -566,12 +580,13 @@
           // "templeId": 126,
           "id":this.$route.query.id,
           "templeId": this.templeId,
-          "userId": JSON.parse(window.localStorage.getItem('selectTempData')).userId
+          // "userId": JSON.parse(window.localStorage.getItem('selectTempData')).userId
+          "userId": JSON.parse(window.localStorage.getItem('userMsg')).id
         }
         let wsDataString = JSON.stringify(wsData)
-        console.log(wsDataString)
+        // console.log(wsDataString)
         ws.onopen = function () {
-          // console.log('open')
+          console.log('open')
 
           // ws.send({
           //   "type": "LIVE",
@@ -580,18 +595,25 @@
           //   "userId": JSON.stringify(window.localStorage.getItem('selectTempData')).userId
           // })
           ws.send(wsDataString)
+          // _t.$refs.video.src = "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8 "
           console.log('數據發送中')
 
           };
 
         ws.onmessage = function (evt) {
+          console.log('onmessage')
+          console.log(evt)
           console.log(222, this)
           let url = evt.data;
-          _t.seeMovieUrl = url
-          console.log(url)
-          _t.getViewList();
-          ws.close()
+          console.log(url, 456)
+          // _t.seeMovieUrl = url
+          _t.$refs.video.src = url
+
+          console.log(_t.$refs.video.src,'5837d453fsfhk');
           console.log('數據已接收');
+          // _t.getViewList();
+          ws.close()
+
 
         };
       },
@@ -599,6 +621,7 @@
       //关闭影像窗口
       closeMoviePopup() {
         this.movieShow = false
+        this.ws.close()
         this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
         clearInterval(this.movieCutTime);
         let param = {
@@ -648,23 +671,23 @@
       },
 
       //请求数据，拿到视频流
-      getViewList() {
-        let _t = this
-
-        //console.log(_t.lampCategoryId + '0000Video')
-        let myPlayer = videojs('myVideo')
-        myPlayer.src({
-          type: 'application/x-mpegURL',
-          src: 'seeMovieUrl'
-        })
-      },
+      // getViewList() {
+      //   let _t = this
+      //
+      //   //console.log(_t.lampCategoryId + '0000Video')
+      //   let myPlayer = videojs('myVideo')
+      //   myPlayer.src({
+      //     type: 'application/x-mpegURL',
+      //     src: 'seeMovieUrl'
+      //   })
+      // },
 
 
       // 点击续灯显示对话框
       renew() {
         post('api/order/checkIsRenewable', {
           lampId: this.$route.query.id,
-          userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
+          userId: JSON.parse(window.localStorage.getItem('userMsg')).id
         }, res => {
           console.log(res);
           // if (res.data.code === 200) {
@@ -888,6 +911,10 @@
           }
         }
         return -1;
+      },
+      // 萤石视频
+      videoOpen() {
+        this.player = new EZUIKit.EZUIPlayer('myPlayer')
       }
     },
     computed: {
@@ -896,6 +923,10 @@
       // }
     },
     mounted() {
+      let ua = window.navigator.userAgent.toLowerCase()
+      if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+        this.weixinShow = false
+      }
       console.log(new Date(new Date().toLocaleDateString()).getTime())
       // if (window.sessionStorage.getItem('payCount2')) {
       //   this.payCount2 = JSON.parse(window.sessionStorage.getItem('payCount2'));
@@ -1008,25 +1039,27 @@
           //   let list = res.data.data
           //   })
         });
+
+        // 获取寻灯弹窗的显示时间
+        post('api/configuration/findByTempleId', {templeId:this.templeId}, res => {
+          console.log(res);
+          if (res.data.code === 200) {
+            this.totalTime = res.data.data.h5ShowWindowTime;
+            this.movieTotalTime = res.data.data.showVideoTime
+            console.log(this.movieTotalTime)
+            //this.id = res.data.data
+            window.sessionStorage.setItem('totalTime',JSON.stringify(this.totalTime));
+            window.sessionStorage.setItem('movieTotalTime',JSON.stringify(this.movieTotalTime));
+
+          }
+        });
       });
 
       // post('api/lampCategory/findById',{id: this.lampCategoryId }, res => {
       //   console.log("lamp" , res.data)
       // })
 
-      // 获取寻灯弹窗的显示时间
-      post('api/configuration/findByTempleId', {templeId:this.templeId}, res => {
-        console.log(res);
-        if (res.data.code === 200) {
-          this.totalTime = res.data.data.h5ShowWindowTime;
-          this.movieTotalTime = res.data.data.showVideoTime
-          console.log(this.movieTotalTime)
-          //this.id = res.data.data
-          window.sessionStorage.setItem('totalTime',JSON.stringify(this.totalTime));
-          window.sessionStorage.setItem('movieTotalTime',JSON.stringify(this.movieTotalTime));
 
-        }
-      });
       if (this.isShow) {
         document.getElementById('findLight').addEventListener('touchstart', function () {
           if (this.isPlayMusic) {
@@ -1047,29 +1080,35 @@
         })
       }
       let _t = this;
-      videojs("myVideo", {
-        bigPlayButton: true,
-        textTrackDisplay: false,
-        errorDisplay: false,
-        autoPlay: true,
-        hls: {
-          withCredentials: true
-        }
-      }, function () {
-        this.play();
-      })
+      // videojs("myVideo", {
+      //   bigPlayButton: true,
+
+
+      //   textTrackDisplay: false,
+      //   errorDisplay: false,
+      //   autoPlay: true,
+      //   hls: {
+      //     withCredentials: true
+      //   }
+      // }, function () {
+      //   this.play();
+      // })
+      this.videoOpen();
     },
     updated() {
-      if (this.radio === '3') {
-        if (localStorage.getItem('environment') === 'weixin') {
-          Dialog.alert({
-            message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
-          }).then(() => {
-            this.radio = '1'
-          });
-
-        }
-      }
+      // if (this.radio === '3') {
+      //   if (localStorage.getItem('environment') === 'weixin') {
+      //     Dialog.alert({
+      //       message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
+      //     }).then(() => {
+      //       this.radio = '1'
+      //     });
+      //
+      //   }
+      // }
+    },
+    beforeDestroy() {
+      this.player.stop(); // 关闭视频流
     },
     destroyed() {
       window.sessionStorage.removeItem('totalTime');
@@ -1352,19 +1391,19 @@
     .findLamp {
       position: relative;
       width: 12.4rem;
-      height: 14.4rem;
+      height: 12.4rem;
       background-color: #ffffff;
 
       .logo {
         position: relative;
         width: 12.4rem;
-        height: 6.04rem;
+        height: 5.04rem;
         /*background-image: url("../../assets/images/b_pic_statue.jpg");*/
         /*background-size: cover;*/
 
         .lampImg {
           width: 12.4rem;
-          height: 6.04rem;
+          height: 5.04rem;
         }
 
         img {
@@ -1405,7 +1444,7 @@
         font-size: 0.56rem;
         position: relative;
         left: 50%;
-        top: 1.92rem;
+        top: 0.92rem;
         transform: translateX(-50%);
         padding: 0 0.6rem;
         box-sizing: border-box;

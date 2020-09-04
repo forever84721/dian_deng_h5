@@ -402,7 +402,7 @@ router.beforeEach((to, from, next) => {
   // 根据路由元信息设置文档标题
   window.document.title = to.meta.title || "线上点灯"
   let ls = localStorage.getItem('userMsg');
-  if (!ls && to.path !== '/' && to.path.indexOf('login') === -1  && to.path !== '/forget' && to.path.indexOf('register') === -1 && to.path.indexOf('forget') === -1 && to.path !== '/person-detail' && to.path !== '/chooseAreaCode' && to.path !== '/serviceAndPrivacy' && to.path !== '/bindAccount') {
+  if (!ls && to.path !== '/' && to.path.indexOf('login') === -1  && to.path !== '/forget' && to.path.indexOf('register') === -1 && to.path.indexOf('forget') === -1 && to.path !== '/person-detail' && to.path !== '/chooseAreaCode' && to.path !== '/serviceAndPrivacy' && to.path !== '/bindAccount' && to.path !== '/pay' && to.path !== '/orderDetail' && to.path !== '/blessMessage' ) {
     next({
       name: 'login'
     });

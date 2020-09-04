@@ -10,6 +10,7 @@ const initPageState = () => {
         token:'',
         id:''
       },
+      templeId: "",
       loading:false,
 
   };

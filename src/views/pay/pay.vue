@@ -30,7 +30,7 @@
             <van-radio slot="right-icon" name="2" checked-color="#9D3024">
             </van-radio>
           </van-cell>
-          <van-cell title="LINE支付" clickable>
+          <van-cell title="LINE支付" clickable v-if="wenxinShow">
             <template slot="icon">
               <div class="iconWay">
                 <img src="../../assets/images/line.png" alt="">
@@ -86,13 +86,14 @@
     name: 'pay',
     data() {
       return {
-        radio: '1',
+        radio: '0',
         money: 0,
         orderId: '',
         show: false,
         openId: '',
         cellphone: '',
         overlayShow: false,
+        wenxinShow: true,
       }
     },
     methods: {
@@ -307,8 +308,7 @@
               if (res.data.code === 200) {
                 this.ceshi = res.data.data;
                 // return false;
-                let url = encodeURIComponent('https://www.baidu.com/')
-                location.href = res.data.data.mwebUrl + '&redirect_url=' + 'https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2Fpay%3ForderId%3D' + this.orderId + '%26money%3D' + this.$route.query.money + '%26origin%3D1'
+                location.href = res.data.data.mwebUrl + '&redirect_url=' + 'https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2Fpay%3ForderId%3D' + this.orderId + '%26money%3D' + this.$route.query.money +'%26templeId%3D' + this.$route.query.templeId +'%26origin%3D'
               }
             })
           }
@@ -317,7 +317,8 @@
           console.log('radio3')
           post('api/beneficiary/encryptionKeyAndSecret' ,
             {
-              "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+              // "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id
+              "templeId": this.$route.query.templeId,
             } ,res1 => {
               console.log('encry', res1)
               // let secret = res1.data.data.secret;
@@ -325,7 +326,8 @@
               post('line/pay/linePay', {
                 "orderId": this.orderId,
                 "deposit": this.money,
-                "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id,
+                // "templeId": JSON.parse(window.localStorage.getItem('selectTempData')).id,
+                "templeId": this.$route.query.templeId,
                 "channelId": res1.data.data.appKey,
                 "secretKey": res1.data.data.appSecret,
               }, res => {
@@ -356,6 +358,10 @@
       // }
     },
     mounted() {
+      let ua = window.navigator.userAgent.toLowerCase()
+      if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+        this.wenxinShow = false
+      }
       post('api/user/get', {}, res => {
         console.log(res);
         if (res.data.code === 200) {
@@ -379,7 +385,7 @@
           this.orderId = JSON.parse(window.sessionStorage.getItem('orderInfo')).orderId
         }
       }
-      if (location.href.indexOf('code') !== -1) {
+      if (location.href.indexOf('code') !== -1 ) {
         this.userCode = this.getvar(location.href, 'code');
         post('api/user/getLoginType', {}, res => {
           if (res.data.code === 200) {
@@ -403,6 +409,7 @@
                       "consumeType": "save",
                       "openId": this.openId,
                       "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+                      // "templeId": this.$route.query.templeId,
                     }, res1 => {
                       console.log(res1);
                       if (res1.data.code === 200) {
@@ -461,7 +468,8 @@
         post('api/order/linePayConfirm', {
           transactionId: transactionId,
           money: this.$route.query.money,
-          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+          // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+          templeId: this.$route.query.templeId,
         } , res => {
           // console.log(typeof(res.data))
           console.log(res.data)
@@ -469,6 +477,10 @@
             that.$toast('支付成功');
             if(window.sessionStorage.getItem('orderInfo')){
               window.sessionStorage.removeItem('orderInfo');
+            }
+            if(!window.localStorage.getItem('selectTempData')){
+              window.localStorage.setItem('selectTempData',{"id": this.$route.query.templeId});
+              console.log(window.localStorage.getItem('selectTempData'))
             }
             // window.sessionStorage.setItem('paySuccess', that.orderId);
             window.sessionStorage.setItem('paySuccess', that.orderId);
@@ -486,7 +498,7 @@
           Dialog.alert({
             message: ' 由于微信浏览器的限制，请在第三方浏览器打开该页面，完成line支付（步骤:点击右上角的按钮，然后点击在浏览器中打开）',
           }).then(() => {
-            this.radio = '1'
+            this.radio = '0'
           });
 
         }

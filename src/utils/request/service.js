@@ -34,33 +34,33 @@ service.defaults.timeout = 50000; // 请求超时时间
 service.interceptors.request.use(
   config => {
     // 判断是否存在token，如果存在的话，则每个http header都加上Access-Token
-    // console.log(store.state.user)
+    console.log(store.state.user)
 
-    // if (store.state.user.token) {
-    //   config.headers['Access-Token'] = store.state.user.token;
-    //
-    // } else {
-    //   let user = localStorage.getItem('userMsg');
-    //   console.log('我是axios'+user);
-    //   if (user){
-    //     // console.log(user);
-    //     config.headers['Access-Token'] = JSON.parse(user).token;
-    //   }
-    //
-    //   // let result = store.dispatch("GET_USER_EXIST");
-    //   // result.then(    (flag) => {
-    //   //   if (flag) {
-    //   //     store.dispatch("GET_USER_CACHE");
-    //   //     if (store.state.user.token) {
-    //   //       config.headers['Access-Token'] = store.state.user.token;
-    //   //
-    //   //     }
-    //   //   }
-    //   // })
-    // }
-    if(localStorage.getItem('userMsg')){
-      config.headers['Access-Token'] = JSON.parse(localStorage.getItem('userMsg')).token;
+    if (store.state.user.token) {
+      config.headers['Access-Token'] = store.state.user.token;
+
+    } else {
+      let user = localStorage.getItem('userMsg');
+      console.log('我是axios'+user);
+      if (user){
+        // console.log(user);
+        config.headers['Access-Token'] = JSON.parse(user).token;
+      }
+
+      // let result = store.dispatch("GET_USER_EXIST");
+      // result.then( (flag) => {
+      //   if (flag) {
+      //     store.dispatch("GET_USER_CACHE");
+      //     if (store.state.user.token) {
+      //       config.headers['Access-Token'] = store.state.user.token;
+      //
+      //     }
+      //   }
+      // })
     }
+    // if(localStorage.getItem('userMsg')){
+    //   config.headers['Access-Token'] = JSON.parse(localStorage.getItem('userMsg')).token;
+    // }
     return config;
   },
   error => {

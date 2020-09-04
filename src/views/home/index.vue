@@ -274,7 +274,7 @@
                   obj.number = item.number;
                   if (!item.important) {
                     obj.price = this.priceList.standardPrice;
-                    
+
                   } else {
                     obj.price = this.priceList.vipPrice;
                   }
@@ -423,7 +423,7 @@
             console.log(res);
             if (res.data.code === 200) {
               this.$toast('提交订单成功');
-              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime}})
+              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id}})
             } else if(res.data.code === 403 && res.data.message === '访问的数据不存在'){
               this.$toast('登录信息已过期，请重新登录');
               this.$router.push('/login')
@@ -458,7 +458,7 @@
               this.$toast('提交订单成功');
               window.localStorage.removeItem('seatInfo');
               window.localStorage.removeItem('ifSelectNum');
-              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime}})
+              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id}})
             } else {
               this.$toast(res.data.message);
             }

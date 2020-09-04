@@ -27,11 +27,12 @@
               <span>初步地址:</span>
               <span>{{tempData.address}}</span>
             </div>
-            <div class="tempDetail_2">
+            <div :class="maxName <= 6? 'tempDetail_2_1' :  'tempDetail_2_2'">
+<!--            <div class="tempDetail_2_2">-->
               <div>{{$t('m.temp.lampServe')}}:</div>
-              <div style="overflow:hidden">
+              <div style="overflow:hidden" >
                 <ul style="overflow:hidden;margin-top: 0">
-                  <li style="margin-top: 0.4rem" v-for="(item, index) in lampList" :key="index">
+                  <li style="overflow:hidden;margin-top: 0.4rem" v-for="(item, index) in lampList" :key="index">
                     {{item.name}}
                   </li>
                 </ul>
@@ -94,6 +95,7 @@
         btnSpaceHeight: 0,
         lampList: [],
         userCode: '',
+        maxName: 0,
         // 屏幕可用主体区域高度
         // showHeight: 0,
         images: [
@@ -230,6 +232,9 @@
             console.log(res);
             this.lampList = res.data.data;
             console.log(this.lampList);
+            //判断name的长度动态改变li的class
+            this.maxName = Math.max.apply(Math, this.lampList.map(item => {return item.name.length}))
+            console.log(this.maxName, '789');
             // this.showHeight = document.body.clientHeight - 50;
           })
           this.tempData.userId = JSON.parse(window.localStorage.getItem('userMsg')).id;
@@ -387,7 +392,7 @@
             font-size: 0.56rem;
           }
 
-          .tempDetail_2 {
+          .tempDetail_2_1 {
             margin-top: 1rem;
             font-size: 0.56rem;
             /*height: 2.4rem;*/
@@ -405,6 +410,27 @@
                 margin-right: 0.52rem;
                 font-size: 0.48rem;
                 background-size: 3.33rem 0.92rem;
+              }
+            }
+          }
+          .tempDetail_2_2 {
+            margin-top: 1rem;
+            font-size: 0.56rem;
+            /*height: 2.4rem;*/
+
+            ul {
+              margin-top: 0.4rem;
+
+              li {
+                text-align: center;
+                width: 5.33rem;
+                float: left;
+                height: 0.92rem;
+                line-height: 0.92rem;
+                background-image: url("../../assets/images/b_ic_tag.png");
+                margin-right: 0.52rem;
+                font-size: 0.48rem;
+                background-size: 5.33rem 0.92rem;
               }
             }
           }

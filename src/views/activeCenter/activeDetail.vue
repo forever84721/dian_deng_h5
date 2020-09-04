@@ -1,12 +1,14 @@
 <template>
-  <div class="activeDetail">
+  <div class="activeDetail" >
     <van-nav-bar
       :title="$t('m.activeDetail')"
       left-arrow
       @click-left="onClickLeft"
     />
-    <div v-html="activeDetail.content">
+      <div  class="content" >
+        <div  v-html="activeDetail.content"></div>
     </div>
+
   </div>
 </template>
 
@@ -42,6 +44,19 @@
   }
 </script>
 
-<style lang="less" scoped>
+<style scoped>
+  .content {
+    width: 100% ;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    overflow: hidden;
 
+  }
+  .content >>> img {
+    background-size: contain;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+  }
 </style>

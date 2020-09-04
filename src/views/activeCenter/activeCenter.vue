@@ -13,8 +13,9 @@
            {{item.createAt}}
          </span>
         </div>
-        <div class="content nowrap">
-          {{item.content}}
+        <div class="content " >
+<!--          {{item.content}}-->
+          <div v-html="item.content"></div>
         </div>
       </div>
     </div>
@@ -86,7 +87,7 @@
         padding: 0.58rem;
         margin-bottom: 0.32rem;
         width: 14rem;
-        height: 4.24rem;
+        min-height: 4.24rem;
         background: rgba(255, 255, 255, 1);
         border-radius: 0.4rem;
 
@@ -112,10 +113,19 @@
           margin-top: 0.4rem;
           font-size: 0.48rem;
           color: #666666;
+          width: 100%;
+          padding: 5% ;
+          box-sizing: border-box;
         }
       }
     }
-
+    .content /deep/ img {
+      background-size: contain;
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
     .noMessage {
       box-sizing: border-box;
       background-color: #F5F5F5;

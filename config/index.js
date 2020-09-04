@@ -35,7 +35,7 @@ module.exports = {
 
     // https://webpack.js.org/configuration/devtool/#development
     devtool: "cheap-module-eval-source-map",
-
+    useEslint: false,
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
@@ -56,7 +56,7 @@ module.exports = {
     /**
      * Source Maps
      */
-
+    useEslint: false,
     productionSourceMap: true,
     // https://webpack.js.org/configuration/devtool/#production
     devtool: "#source-map",

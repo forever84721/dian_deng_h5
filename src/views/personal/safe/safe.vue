@@ -14,7 +14,7 @@
           :label="$t('m.personal.oldTel')"
           :placeholder="$t('m.personal.pleaseTel')"
         >
-          <van-button slot="button" size="small" @click="getMessageNum">{{$t('m.personal.messageNum')}}</van-button>
+          <van-button slot="button" size="small" @click="getMessageNum">{{time === 0? $t('m.personal.messageNum'): btnTxt}}</van-button>
         </van-field>
         <van-field
           v-model="oldMessageNum"
@@ -50,7 +50,7 @@
               <van-icon class="icon" :name="arrow" />
             </div>
           </template>
-          <van-button slot="button" size="small" @click="getMessageNum">{{$t('m.personal.messageNum')}}</van-button>
+          <van-button slot="button" size="small" @click="getMessageNum">{{time === 0? $t('m.personal.messageNum'): btnTxt}}</van-button>
         </van-field>
         <van-field
           v-model="newMessageNum"
@@ -75,7 +75,7 @@
       />
       <div>
         <img src="../../../assets/images/b_icn_success.png" alt="">
-        <p>已成功更换手机号</p>
+        <div class="btn" @click="handleClick">已成功更换手机号</div>
       </div>
     </div>
   </div>
@@ -105,6 +105,9 @@
         arrow: 'arrow-down',
         areaCode: '86',
         area:'中国',
+        time: 0,
+        btnTxt: "",
+        timeOut: '',
       }
     },
     mounted() {
@@ -130,6 +133,18 @@
       });
     },
     methods: {
+      //验证码的倒计时
+      timer() {
+        console.log("timer")
+        if (this.time > 0) {
+          this.time--;
+          this.btnTxt = this.time + "s";
+          this.timeOut = setTimeout(this.timer, 1000);
+        } else {
+          this.time = 0;
+          this.disable = false;
+        }
+      },
       // 获取短信验证码
       getMessageNum() {
         if (this.show1) {
@@ -138,11 +153,14 @@
             return false;
           }
           if (this.oldPhone !== this.userInfo.cellphone) {
-            Toast('您输入的手机号有误，请重新输入!');
+            // Toast('您输入的手机号有误，请重新输入!');
+            Toast('该手机号未注册')
             return false;
           }
           post('api/user/sendUpdatePasswordCaptcha', {type: '86', cellphone: this.oldPhone}, res => {
             if (res.data.code === 200) {
+              this.time = 60;
+              this.timer()
               Toast('验证码发送成功')
             }else {
               Toast(res.data.message)
@@ -175,6 +193,8 @@
           // }
           post('api/user/sendRegisterationCaptcha', {type: this.areaCode, cellphone: this.newPhone}, res => {
             if (res.data.code === 200) {
+              this.time = 60;
+              this.timer()
               Toast('验证码发送成功')
             } else {
               Toast(res.data.message)
@@ -202,6 +222,8 @@
       },
       next() {
         // Toast('1');
+        this.time = 0;
+        clearTimeout(this.timeOut)
         if (this.show1) {
           if (this.oldPhone.trim().length === 0) {
             Toast('请先输入您的手机号码');
@@ -233,7 +255,10 @@
           }
           post('api/user/checkCaptcha', {cellphone: this.newPhone, captcha: this.newMessageNum}, res => {
             if (res.data.code === 200) {
-              post('api/user/update', {user: localStorage.getItem('userMsg')}, res => {
+              post('api/user/update', {user: {
+                  id : JSON.parse(localStorage.getItem('userMsg')).id,
+                  cellphone:this.newPhone
+                }}, res => {
                 console.log(res, "show3")
               })
               this.show3 = true;
@@ -243,6 +268,9 @@
             }
           });
         }
+      },
+      handleClick() {
+        this.$router.push('safe')
       }
     }
   }
@@ -268,7 +296,7 @@
     position: relative;
   }
   .tip {
-    width: 4rem;
+    width: 4.5rem;
     z-index: 999;
   }
   .icon {
@@ -291,5 +319,20 @@
     img {
       margin-top: 2.84rem;
     }
+  }
+  .btn {
+    width: 13.08rem;
+    height: 2rem;
+    background-image: url("../../../assets/images/b_btn_pay.png");
+    background-size: cover;
+    border-radius: 0.2rem;
+    line-height: 2rem;
+    text-align: center;
+    color: #885022;
+    font-size: 0.72rem;
+    position: relative;
+    left: 50%;
+    top: 0.68rem;
+    transform: translateX(-50%);
   }
 </style>

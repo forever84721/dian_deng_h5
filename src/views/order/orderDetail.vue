@@ -93,7 +93,7 @@
       closeable
       close-icon-position="top-left"
       position="bottom"
-      :style="{ height: '60%' }"
+      :style="{ height: '75%' }"
     >
       <div class="top">
         <!--        <img src="../../assets/images/d_ic_close.png" alt="" @click="closePay">-->
@@ -124,7 +124,7 @@
               <van-radio slot="right-icon" name="2" checked-color="#9D3024">
               </van-radio>
             </van-cell>
-            <van-cell title="LINE支付" clickable>
+            <van-cell title="LINE支付" clickable v-if="weixinShow">
               <template slot="icon">
                 <div class="iconWay">
                   <img src="../../assets/images/line.png" alt="">
@@ -194,7 +194,8 @@
           currentTime: '',
         },
         roCallTime: '',
-        orderTimeShow: true
+        orderTimeShow: true,
+        weixinShow: true,
       }
     },
     methods: {
@@ -572,6 +573,10 @@
       },
     },
     mounted() {
+      let ua = window.navigator.userAgent.toLowerCase()
+      if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+        this.weixinShow = false
+      }
       //订单倒计时
       // line续灯的调用监听
       if (location.href.indexOf("transactionId") !== -1) {
