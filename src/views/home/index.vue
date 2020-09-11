@@ -390,6 +390,7 @@
         //   location.href = res.data.data.mwebUrl
         // });
         // return false;
+
         let date = new Date();
         this.orderTime = this.formatDateTime(date)
         console.log(this.orderTime)
@@ -422,8 +423,16 @@
           },res => {
             console.log(res);
             if (res.data.code === 200) {
+              console.log(res, '222')
               this.$toast('提交订单成功');
-              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id}})
+              let params = {
+                  "orderId": res.data.data.id,
+                  "durationQuantity": this.days,
+                  "deposit": this.totalMoney,
+                  "templeId": this.tempDetail.id,
+                };
+              window.localStorage.setItem('ecPayItem',  JSON.stringify(params))
+              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id,durationQuantity: this.days}})
             } else if(res.data.code === 403 && res.data.message === '访问的数据不存在'){
               this.$toast('登录信息已过期，请重新登录');
               this.$router.push('/login')
@@ -456,13 +465,40 @@
             console.log(res);
             if (res.data.code === 200) {
               this.$toast('提交订单成功');
+              let params = {
+                "orderId": res.data.data.id,
+                "durationQuantity": this.days,
+                "deposit": this.totalMoney,
+                "templeId": this.tempDetail.id,
+              };
+              window.localStorage.setItem('ecPayItem', JSON.stringify(params))
               window.localStorage.removeItem('seatInfo');
               window.localStorage.removeItem('ifSelectNum');
-              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id}})
+              this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id,durationQuantity: this.days}})
             } else {
               this.$toast(res.data.message);
             }
           });
+        }
+      },
+      //对安灯时间进行排序
+      timeSort(property,propertyKey) {
+        if (propertyKey) {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property][propertyKey]
+            let value2 = b[property][propertyKey]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        } else {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property]
+            let value2 = b[property]
+            console.log(value1, value2)
+            return value1 - value2
+          }
         }
       },
       //修改时间格式
@@ -490,7 +526,9 @@
       post('api/lampCategory/findById', {id: this.$route.query.lampCategoryId}, res => {
         console.log(res);
         this.lampDetail = res.data.data.lampCategory;
-        this.lampSelect = res.data.data.lampGoodsList;
+        this.lampSelect = res.data.data.lampGoodsList.sort(this.timeSort('duration','quantity'))
+        console.log(this.lampSelect, 'this.lampSelect')
+        // this.lampSelect = res.data.data.lampGoodsList;
         console.log(this.lampDetail, this.lampSelect);
         if (window.localStorage.getItem('seatInfo') && JSON.parse(window.localStorage.getItem('seatInfo')).length !== 0) {
           // 自选灯位页面初始化

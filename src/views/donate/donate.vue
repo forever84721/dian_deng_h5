@@ -363,8 +363,21 @@
             })
           })
 
-        } else{
-          this.$toast('该支付方式暂未开放，请重新选择支付方式');
+        } else if(this.radio === '2'){
+          post('api/pay/ecPay',
+            {
+              "deposit": Number(this.donateMoney),
+              "accountId": JSON.parse(localStorage.getItem("userMsg")).id  ,
+              "templeId": JSON.parse(localStorage.getItem('selectTempData')).id,
+            }, res=> {
+              const div = document.createElement('div')
+              div.innerHTML = res.data.data
+              document.appendChild(div)
+              div.id = 'payDiv'
+              document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
+            })
+        }else{
+          this.$toast('请选择支付方式');
         }
       },
       //input输入框只能输入数字和 小数点后两位

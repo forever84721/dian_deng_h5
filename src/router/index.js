@@ -401,13 +401,25 @@ router.beforeEach((to, from, next) => {
   window.pageYOffset = 0
   // 根据路由元信息设置文档标题
   window.document.title = to.meta.title || "线上点灯"
+
   let ls = localStorage.getItem('userMsg');
   if (!ls && to.path !== '/' && to.path.indexOf('login') === -1  && to.path !== '/forget' && to.path.indexOf('register') === -1 && to.path.indexOf('forget') === -1 && to.path !== '/person-detail' && to.path !== '/chooseAreaCode' && to.path !== '/serviceAndPrivacy' && to.path !== '/bindAccount' && to.path !== '/pay' && to.path !== '/orderDetail' && to.path !== '/blessMessage' ) {
     next({
       name: 'login'
     });
+    console.log('成3')
   } else {
-    next()
+    if((to.path.indexOf('login') !== -1) && localStorage.ecPayItem) {
+
+      next({
+        name: 'pay'
+      })
+      console.log('成1')
+    }else {
+      next()
+      console.log('成2')
+    }
+
   }
 
 });

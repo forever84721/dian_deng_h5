@@ -81,7 +81,7 @@
       post('api/lampCategory/findById',{id:this.lampId},res => {
         console.log(res);
         this.lampDetail = res.data.data.lampCategory;
-        this.lampSelect = res.data.data.lampGoodsList;
+        this.lampSelect = res.data.data.lampGoodsList.sort(this.timeSort('duration','quantity'));
         console.log(this.lampDetail,this.lampSelect);
         this.getUrl()
       });
@@ -92,6 +92,26 @@
       this.tempDes = JSON.parse(localStorage.getItem('selectTempData')).description;
     },
     methods:{
+      //对安灯时间进行排序
+      timeSort(property,propertyKey) {
+        if (propertyKey) {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property][propertyKey]
+            let value2 = b[property][propertyKey]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        } else {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property]
+            let value2 = b[property]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        }
+      },
       // 返回上一级
       onClickLeft() {
         this.$router.go(-1);

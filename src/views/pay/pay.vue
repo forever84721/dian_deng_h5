@@ -337,8 +337,29 @@
           })
 
         }
-        else{
-          this.$toast('该支付方式暂未开放，请重新选择支付方式');
+        else if(this.radio === '2'){
+          post('api/pay/ecPay',
+            {
+              "orderId":  this.orderId,
+              "deposit":  this.money,
+              "durationQuantity":this.$route.query.durationQuantity,
+              "templeId":this.$route.query.templeId,
+              // "type": 2,
+              // "orderId": this.orderId,
+              // "deposit": this.money,
+              // "consumeType": "save",
+              // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
+            }, res=> {
+              console.log(res.data.data)
+              // const payDiv = document.getElementById('payDiv')
+              const div = document.createElement('div');
+              div.innerHTML = res.data.data
+              document.body.appendChild(div)
+              div.id = "payDiv"
+              document.getElementById('payDiv').getElementsByTagName('form')[0].submit();
+          })
+        } else{
+          this.$toast('请选择支付方式');
         }
       },
       getvar(url, par) {
@@ -505,6 +526,9 @@
       }
     },
     beforeDestroy() {
+      if(localStorage.ecPayItem) {
+        localStorage.removeItem('ecPayItem')
+      }
       if (!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId)) {
         this.$toast('支付失败');
         // return false;

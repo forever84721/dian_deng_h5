@@ -323,8 +323,21 @@
                 console.log(res.data)
                 location.href = res.data.data.info.paymentUrl.web
               })
-            }else {
-              this.$toast('该支付方式暂未开放，请重新选择支付方式');
+            }else if(this.radio === '2') {
+              post('api/pay/ecPay',
+                {
+                  "pilgrimId": this.blessUserInfo.pilgrimId,
+                  "deposit": this.needMoney,
+                  "durationQuantity": this.days,
+                },res=> {
+                  const div = document.createElement('div')
+                  div.innerHTML = res.data.data
+                  div.id = 'payDiv'
+                  document.appendChild(div)
+                  document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
+                })
+            } else{
+              this.$toast('请选择支付方式');
             }
           } else {
             this.$toast('该灯位已被占用~');
@@ -465,6 +478,26 @@
         this.needMoney = value.split('￥')[1];
         console.log(this.days, Number(this.needMoney));
       },
+      //对安灯时间进行排序
+      timeSort(property,propertyKey) {
+        if (propertyKey) {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property][propertyKey]
+            let value2 = b[property][propertyKey]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        } else {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property]
+            let value2 = b[property]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        }
+      },
       // 续灯
       continueLamp(item) {
         this.blessUserInfo = item;
@@ -479,7 +512,7 @@
             // 获取灯种规格
             post('api/lampGoods/findByLampId', {lampId: item.id}, res => {
               console.log(res);
-              this.lampSelect = res.data.data;
+              this.lampSelect = res.data.data.sort(this.timeSort('durationQuantity'));
               console.log(this.lampSelect , 'nijapo');
               // 续灯选择器相关配置项的处理
               this.columns = [];

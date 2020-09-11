@@ -62,7 +62,7 @@
 
       <!--  实时影像窗口   -->
       <van-overlay :show="movieShow" z-index="0" />
-      <van-popup v-model='movieShow' :overlay="false" style="width:12.4rem;height:9.4rem" ref="pop" :lazy-render="false">
+      <van-popup v-model='movieShow' id="moviePopup" :overlay="false" style="width:12.4rem;height:9.4rem" ref="pop" :lazy-render="false">
 <!--        <div class="moviePopup" style="position: relative;  z-index:999;">-->
 <!--          <video id="myVideo"-->
 <!--                 class="video-js vjs-default-skin vjs-big-play-centered"-->
@@ -77,14 +77,23 @@
 <!--          </video>-->
 <!--        </div>-->
         <!--          src="http://hls01open.ys7.com/openlive/f01018a141094b7fa138b9d0b856507b.hd.m3u8"-->
-        <video id="myPlayer" ref="video"
-
-          width="100%"
-          height="100%"
+        <iframe
+          src="https://open.ys7.com/ezopen/h5/iframe?url=ezopen://open.ys7.com/D82674077/1.live&autoplay=1&accessToken=at.6nqb07tr7x6gzwk90kw98cui90aq3k74-4g2ud51p0i-09zdeh9-sf4hmjmtn"
+          width="300"
+          height="200"
+          id="ysOpenDevice"
           autoplay
-          controls
-        allowfullscreen>
-        </video>
+
+        >
+        </iframe>
+<!--        <video id="myPlayer" ref="video"-->
+
+<!--          width="100%"-->
+<!--          height="100%"-->
+<!--          autoplay-->
+<!--          controls-->
+<!--        allowfullscreen>-->
+<!--        </video>-->
       </van-popup>
       <div class="closeMovie" v-if="movieShow" >
         <div style="margin: 1rem" @click="closeMoviePopup"><img  src="../../assets/images/c_btn_close.png" alt="">
@@ -259,10 +268,39 @@
         player: '', //萤石播放器
         id: '',//灯种Id
         weixinShow: true,
+        readyState: 0
       }
     },
-
+    watch: {
+      readyState(val) {
+        if(val === 4) {
+          console.log(this.$refs.video.src);
+          this.toast.clear()
+          this.movieShow = true;
+          this.movieCutTime = setInterval(() => {
+            this.movieTotalTime--;
+            if (this.movieTotalTime <= 0) {
+              this.movieShow = false;
+              this.readyState = 0
+              clearInterval(this.movieCutTime);
+              //document.getElementById('wish').pause();
+            }
+          }, 1000);
+          this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
+        }
+      }
+    },
     methods: {
+      //获取实时播放视频的宽高
+      getMovieIframe() {
+        let popup = document.getElementById('moviePopup')
+        let iframe = document.getElementById('ysOpenDevice')
+        iframe.height = popup.style.height
+        iframe.width = popup.style.width
+        console.log(iframe,'456785')
+        console.log(iframe.height);
+        console.log(popup,'45879')
+      },
       // 关闭查询支付结果弹窗
       closeIsPay() {
         this.isPaySuccessShow = false;
@@ -379,18 +417,16 @@
         // 检查是否满足续灯的条件
         post('api/order/checkIsRenewable', {
           lampId: this.$route.query.id,
-          userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
+          userId: JSON.parse(window.localStorage.getItem('userMsg')).id
         }, res => {
           // console.log(res);
           if (res.data.data === true) {
             if (this.radio === '1') {
-              // console.log(this.days,'7457')
               let browserInfo = navigator.userAgent.toLowerCase();
               if (browserInfo.match(/MicroMessenger/i) == 'micromessenger') {
                 post('api/user/getLoginType', {}, res => {
                   if (res.data.code === 200) {
                     if (res.data.data === "wx") {
-                      // console.log('进来了phone')
                       post('api/user/getOpenIdByUser', {}, res2 => {
                         // console.log(res2);
                         // this.$toast(res);
@@ -414,7 +450,6 @@
                         }
                       });
                     } else {
-                      console.log("openId--------------", this.openId)
                       if (this.openId !== '') {
                         // console.log('看看',this.days)
                         post('api/pay/renewPay', {
@@ -491,7 +526,20 @@
                 console.log(res.data)
                 location.href = res.data.data.info.paymentUrl.web
               })
-            }else {
+            }else if(this.radio === '2'){
+              post('api/pay/ecPay',
+                {
+                  "pilgrimId": this.$route.query.pilgrimId,
+                  "deposit": this.needMoney,
+                  "durationQuantity": this.days,
+                }, res=> {
+                  const div = document.createElement('div')
+                  div.innerHTML  = res.data.data
+                  div.id = 'payDiv'
+                  document.appendChild(div)
+                  document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
+                })
+            }else{
               this.$toast('该支付方式暂未开放，请重新选择支付方式');
             }
           }
@@ -519,54 +567,42 @@
         console.log(this.days, Number(this.needMoney));
       },
       // 观看实时影象
-
-      seeMovie() {
-        console.log('seemovie')
-        console.log(this.movieTotalTime);
-        // Toast.setDefaultOptions({duration: 10000});
-        // this.getVideo()
-        this.getWebSocket();
-        // setTimeout(() =>{
-        //   console.log('77'+ this.seeMovieUrl)
-        // },0)
-        console.log('排队前' + this.seeMovieUrl)
-        // Toast({
+      async seeMovie() {
+        this.getMovieIframe()
+        console.log('789456')
+        this.movieShow = true
+        // setInterval(()=> {
+        //   console.log(this.readyState)
+        // },2000)
+        // this.readyState = this.$refs.video.readyState
+        // console.log(typeof this.readyState)
+        // console.log(this.movieTotalTime);
+        //  await this.getWebSocket();
+        // this.toast = Toast.loading({
+        //   duration: 0, // 持续展示 toast
+        //   forbidClick: true,
         //   message: '正在排队中...',
-        //   icon: 'like-o',
-        //   duration: 1000,
         // });
-        //console.log(this.player)
-        setTimeout(()=> {
-          // this.getViewList();
-          console.log(this.$refs.video.src, 'video')
-          // console.log(this.seeMovieUrl, 'seeurl')
-          // if(this.seeMovieUrl ) {
-          //   // console.log('kong')
-          //   this.movieShow = false;
-          //   console.log(this.movieShow, '111')
-          //   Toast('当前观看人数较多，排队中....')
-          //
-          // }
-          this.movieShow = true;
-          // console.log(123123,this.$refs.abc)
-          // console.log( this.$refs.pop, '4145646')
-          // console.log( this.$refs.video, '456')
-          // console.log(document.getElementsByName('video'));
-          // console.log(document.getElementById('myPlayer'))
-          // this.$refs.video.src = "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8 "
-          console.log(this.$refs.video.src, 'video1')
-          //this.save()
-          this.movieCutTime = setInterval(() => {
-            this.movieTotalTime--;
-            if (this.movieTotalTime <= 0) {
-              this.movieShow = false;
-              clearInterval(this.movieCutTime);
-              //document.getElementById('wish').pause();
-            }
-          }, 1000);
-        }, 1000);
-        this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
 
+      //   setTimeout(()=> {
+      //     if(this.readyState !== 4) {
+      //
+      //     }
+      //     this.movieShow = true;
+      //     // this.$refs.video.src = "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8 "
+      //     console.log(this.$refs.video.src, 'video1')
+      //     //this.save()
+      //     this.movieCutTime = setInterval(() => {
+      //       this.movieTotalTime--;
+      //       if (this.movieTotalTime <= 0) {
+      //         this.movieShow = false;
+      //         clearInterval(this.movieCutTime);
+      //         //document.getElementById('wish').pause();
+      //       }
+      //     }, 1000);
+      //   // }, 1000);
+      //   this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
+      //
       },
       getWebSocket() {
 
@@ -604,10 +640,19 @@
           console.log('onmessage')
           console.log(evt)
           console.log(222, this)
-          let url = evt.data;
-          console.log(url, 456)
-          // _t.seeMovieUrl = url
-          _t.$refs.video.src = url
+          if(evt.data === '您今天的查看次数已用完') {
+            Toast.fail({
+              message: '您今天的查看次数已用完',
+              duration: 3000,
+            })
+            return false
+          } else {
+            let url = evt.data;
+            console.log(url, 456)
+            // _t.seeMovieUrl = url
+            _t.$refs.video.src = url
+          }
+
 
           console.log(_t.$refs.video.src,'5837d453fsfhk');
           console.log('數據已接收');
@@ -621,6 +666,7 @@
       //关闭影像窗口
       closeMoviePopup() {
         this.movieShow = false
+        this.readyState = 0
         this.ws.close()
         this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
         clearInterval(this.movieCutTime);
@@ -701,6 +747,26 @@
             this.$toast('该灯位已被占用')
           }
         });
+      },
+      //对安灯时间进行排序
+      timeSort(property,propertyKey) {
+        if (propertyKey) {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property][propertyKey]
+            let value2 = b[property][propertyKey]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        } else {
+          return function (a, b) {
+            console.log(a, b)
+            let value1 = a[property]
+            let value2 = b[property]
+            console.log(value1, value2)
+            return value1 - value2
+          }
+        }
       },
       onClickLeft() {
         this.$router.go(-1)
@@ -994,7 +1060,7 @@
       }
       // 获取明灯详情
       post('api/lamp/findDtoById', {pilgrimId: this.$route.query.pilgrimId}, res => {
-        console.log(res);
+        console.log(res.data.data,'7894573575');
         this.lightDetail = res.data.data;
         this.lightUrl = []
         this.lightUrl = this.lightDetail.lampCategoryDisplayImage.split(',')
@@ -1012,7 +1078,7 @@
         // 获取灯种规格
         post('api/lampGoods/findByLampId', {lampId: this.lightDetail.id}, res => {
           console.log(res);
-          this.lampSelect = res.data.data;
+          this.lampSelect = res.data.data.sort(this.timeSort('durationQuantity'));
           console.log(123,this.lampSelect);
           this.lampCategoryId = this.lampSelect[0].lampCategory.id
           console.log(this.lampCategoryId)
@@ -1108,6 +1174,7 @@
       // }
     },
     beforeDestroy() {
+      this.toast.clear()
       this.player.stop(); // 关闭视频流
     },
     destroyed() {

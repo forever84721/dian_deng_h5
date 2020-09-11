@@ -35,13 +35,11 @@ service.interceptors.request.use(
   config => {
     // 判断是否存在token，如果存在的话，则每个http header都加上Access-Token
     console.log(store.state.user)
-
     if (store.state.user.token) {
       config.headers['Access-Token'] = store.state.user.token;
 
     } else {
       let user = localStorage.getItem('userMsg');
-      console.log('我是axios'+user);
       if (user){
         // console.log(user);
         config.headers['Access-Token'] = JSON.parse(user).token;
@@ -72,9 +70,11 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   response => {
+    console.log(response, 'nizaina')
     console.log(response.data.code);
     store.commit('hideLoading')
     if (response.data) {
+
       switch (response.data.code) {
          case 403 :
           // localStorage.removeItem('userMsg');
@@ -84,18 +84,18 @@ service.interceptors.response.use(
     }
     return response;
   },
-
   error => {
     store.commit('hideLoading')
     if (error.data) {
       switch (error.data.code) {
-         case 403 :
-           // localStorage.removeItem('userMsg');
-           // router.replace({path:'/login'});
-           break;
+        case 403 :
+          // localStorage.removeItem('userMsg');
+          // router.replace({path:'/login'});
+          break;
       }
     }
   }
+
 );
 
 
