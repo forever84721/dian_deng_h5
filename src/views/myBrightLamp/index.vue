@@ -80,6 +80,22 @@
       //   this.showHeight=document.body.clientHeight-96;
       //   window.location.reload()
       // }
+      //监听绿界回调
+      if(localStorage.ecPayRenew) {
+        post('api/pay/ecPayRenewConfirm', {
+
+        },res=> {
+          console.log(res,'ecpay')
+          if(res.data.data === true){
+            this.$toast('支付成功')
+
+          }else{
+            this.$toast('支付失败')
+          }
+          localStorage.removeItem('ecPayRenewItem')
+          localStorage.removeItem('ePayRenew')
+        })
+      }
       // 获取我的明灯信息
       post('api/lamp/findByUser',{},res => {
         console.log(res);
@@ -87,7 +103,6 @@
           this.lampList = res.data.data;
           //适配微信浏览器
           if(localStorage.getItem('environment') === 'weixin' || localStorage.getItem('environment') === 'ios') {
-            console.log('weixin')
             this.lampList.forEach((item,index)=> {
             console.log(item.endAt);
             item.endAt = item.endAt.replace(/-/g, '/');
@@ -116,6 +131,7 @@
           this.show = !this.show;
         }
       });
+
       // line续灯的调用监听
       if (location.href.indexOf("transactionId") !== -1) {
         post('api/order/linePayRenewConfirm',{

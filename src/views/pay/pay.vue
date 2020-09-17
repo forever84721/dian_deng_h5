@@ -228,7 +228,7 @@
               // that.$router.push({path: '/blessMessage', query:{orderId: this.$route.query.orderId}})
             } else {
               that.$toast('支付失败');
-              that.$router.push({path: '/orderDetail', query: {orderId: this.orderId}});
+              that.$router.push({path: '/orderDetail', query: {orderId: that.orderId}});
             }
           });
       },
@@ -350,6 +350,8 @@
               // "consumeType": "save",
               // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
             }, res=> {
+              let param = {index:0}
+              localStorage.setItem('ecPay', param)
               console.log(res.data.data)
               // const payDiv = document.getElementById('payDiv')
               const div = document.createElement('div');
@@ -382,6 +384,29 @@
       let ua = window.navigator.userAgent.toLowerCase()
       if (ua.match(/MicroMessenger/i) == 'micromessenger') {
         this.wenxinShow = false
+      }
+
+      //监听绿界回调
+      if(localStorage.ecPay) {
+        post('api/pay/ecPayConfirm',{
+          "templeId":JSON.parse(localStorage.getItem('ecPayItem')).templeId,
+          "orderId": JSON.parse(localStorage.getItem('ecPayItem')).orderId
+        }, res=> {
+          console.log(!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId), 'nikajdksdk');
+          if(res.data.data === true) {
+            this.$toast('支付成功');
+            window.sessionStorage.setItem('paySuccess', JSON.parse(localStorage.getItem('ecPayItem')).orderId);
+            this.$router.push({path: '/blessMessage', query: {orderId: JSON.parse(window.localStorage.getItem("ecPayItem")).orderId}});
+            window.localStorage.removeItem('ecPayItem')
+            window.localStorage.removeItem('ecPay')
+          }else {
+            this.$toast('支付失败');
+            this.$router.push({path: '/orderDetail', query: {orderId: JSON.parse(window.localStorage.getItem("ecPayItem")).orderId}});
+            window.localStorage.removeItem('ecPayItem')
+            window.localStorage.removeItem('ecPay')
+          }
+        })
+
       }
       post('api/user/get', {}, res => {
         console.log(res);
@@ -533,7 +558,6 @@
         this.$toast('支付失败');
         // return false;
         this.$router.push({path: '/orderDetail', query: {orderId: this.orderId}});
-        // this.$router.push('/orderDetail/'+this.orderId)
       }
     }
   }

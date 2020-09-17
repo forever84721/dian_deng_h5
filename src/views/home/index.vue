@@ -430,6 +430,7 @@
                   "durationQuantity": this.days,
                   "deposit": this.totalMoney,
                   "templeId": this.tempDetail.id,
+                  "index": 0
                 };
               window.localStorage.setItem('ecPayItem',  JSON.stringify(params))
               this.$router.push({path: '/pay', query: {orderId: res.data.data.id, money: this.totalMoney,time:this.orderTime,templeId:this.tempDetail.id,durationQuantity: this.days}})

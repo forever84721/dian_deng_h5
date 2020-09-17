@@ -367,12 +367,12 @@
           post('api/pay/ecPay',
             {
               "deposit": Number(this.donateMoney),
-              "accountId": JSON.parse(localStorage.getItem("userMsg")).id  ,
+              // "accountId": JSON.parse(localStorage.getItem("userMsg")).id  ,
               "templeId": JSON.parse(localStorage.getItem('selectTempData')).id,
             }, res=> {
               const div = document.createElement('div')
               div.innerHTML = res.data.data
-              document.appendChild(div)
+              document.body.appendChild(div)
               div.id = 'payDiv'
               document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
             })

@@ -403,21 +403,33 @@ router.beforeEach((to, from, next) => {
   window.document.title = to.meta.title || "线上点灯"
 
   let ls = localStorage.getItem('userMsg');
+  console.log(to.path)
   if (!ls && to.path !== '/' && to.path.indexOf('login') === -1  && to.path !== '/forget' && to.path.indexOf('register') === -1 && to.path.indexOf('forget') === -1 && to.path !== '/person-detail' && to.path !== '/chooseAreaCode' && to.path !== '/serviceAndPrivacy' && to.path !== '/bindAccount' && to.path !== '/pay' && to.path !== '/orderDetail' && to.path !== '/blessMessage' ) {
     next({
       name: 'login'
     });
     console.log('成3')
   } else {
-    if((to.path.indexOf('login') !== -1) && localStorage.ecPayItem) {
+    //绿界跳转监听
+    if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayItem')) {
 
       next({
         name: 'pay'
       })
       console.log('成1')
+    }else if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayRenewItem')){
+      next({
+        name:'myBrightLamp'
+      })
+      console.log('成2')
+    } else if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayDonate')){
+      next({
+        name:'donateSuccess'
+      })
+      console.log('成3')
     }else {
       next()
-      console.log('成2')
+      console.log('cheng4')
     }
 
   }

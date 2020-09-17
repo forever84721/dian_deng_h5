@@ -324,7 +324,7 @@
                 location.href = res.data.data.info.paymentUrl.web
               })
             }else if(this.radio === '2') {
-              post('api/pay/ecPay',
+              post('api/pay/ecPayRenewPay',
                 {
                   "pilgrimId": this.blessUserInfo.pilgrimId,
                   "deposit": this.needMoney,

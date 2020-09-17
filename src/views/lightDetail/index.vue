@@ -78,13 +78,8 @@
 <!--        </div>-->
         <!--          src="http://hls01open.ys7.com/openlive/f01018a141094b7fa138b9d0b856507b.hd.m3u8"-->
         <iframe
-          src="https://open.ys7.com/ezopen/h5/iframe?url=ezopen://open.ys7.com/D82674077/1.live&autoplay=1&accessToken=at.6nqb07tr7x6gzwk90kw98cui90aq3k74-4g2ud51p0i-09zdeh9-sf4hmjmtn"
-          width="300"
-          height="200"
           id="ysOpenDevice"
-          autoplay
-
-        >
+          autoplay>
         </iframe>
 <!--        <video id="myPlayer" ref="video"-->
 
@@ -268,35 +263,44 @@
         player: '', //萤石播放器
         id: '',//灯种Id
         weixinShow: true,
-        readyState: 0
+        // readyState: 0
       }
     },
     watch: {
       readyState(val) {
-        if(val === 4) {
-          console.log(this.$refs.video.src);
-          this.toast.clear()
-          this.movieShow = true;
-          this.movieCutTime = setInterval(() => {
-            this.movieTotalTime--;
-            if (this.movieTotalTime <= 0) {
-              this.movieShow = false;
-              this.readyState = 0
-              clearInterval(this.movieCutTime);
-              //document.getElementById('wish').pause();
-            }
-          }, 1000);
-          this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
-        }
+        // if(val === 4) {
+        //   this.toast.clear()
+        //   this.movieShow = true;
+        //   this.movieCutTime = setInterval(() => {
+        //     this.movieTotalTime--;
+        //     if (this.movieTotalTime <= 0) {
+        //       this.movieShow = false;
+        //       this.readyState = 0
+        //       clearInterval(this.movieCutTime);
+        //       //document.getElementById('wish').pause();
+        //     }
+        //   }, 1000);
+        //   this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
+        // }
       }
     },
     methods: {
+      getString(fString,sString) {
+        let str = fString.split(sString)
+        return str[0]
+        console.log(str[0])
+      },
       //获取实时播放视频的宽高
       getMovieIframe() {
         let popup = document.getElementById('moviePopup')
         let iframe = document.getElementById('ysOpenDevice')
-        iframe.height = popup.style.height
-        iframe.width = popup.style.width
+        console.log(Number(popup.style.height));
+        console.log(html,'html')
+        let html = this.getString(getComputedStyle(window.document.documentElement)['font-size'], 'p')
+        let height =this.getString(popup.style.height, 'r')
+        let width =this.getString(popup.style.width, 'r')
+        iframe.height =height  * html + 'px'
+        iframe.width = width * html + 'px'
         console.log(iframe,'456785')
         console.log(iframe.height);
         console.log(popup,'45879')
@@ -527,27 +531,28 @@
                 location.href = res.data.data.info.paymentUrl.web
               })
             }else if(this.radio === '2'){
-              post('api/pay/ecPay',
+              post('api/pay/ecPayRenewPay',
                 {
                   "pilgrimId": this.$route.query.pilgrimId,
-                  "deposit": this.needMoney,
-                  "durationQuantity": this.days,
+                  "deposit": Number(this.needMoney),
+                  "templeId": this.templeId
                 }, res=> {
+                  localStorage.setItem('ecPayRenew', 'index')
                   const div = document.createElement('div')
                   div.innerHTML  = res.data.data
+
+                  document.body.appendChild(div)
                   div.id = 'payDiv'
-                  document.appendChild(div)
                   document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
                 })
             }else{
-              this.$toast('该支付方式暂未开放，请重新选择支付方式');
+              this.$toast('该选择支付方式');
             }
           }
           else {
             this.$toast('该灯位已被占用~');
           }
         });
-        console.log('给了给了')
       },
       // 关闭支付
       closePay() {
@@ -565,20 +570,26 @@
         this.needMoney = value.split('￥')[1];
         console.log(this.needMoney, '123456789')
         console.log(this.days, Number(this.needMoney));
+        let param = {
+          "templeId": this.templeId,
+          "pilgrimId": this.$route.query.pilgrimId,
+          "money": this.needMoney,
+          "days": this.days
+        };
+        localStorage.setItem('ecPayRenewItem',param)
       },
       // 观看实时影象
       async seeMovie() {
         this.getMovieIframe()
-        console.log('789456')
-        this.movieShow = true
+        // this.movieShow = true
         // setInterval(()=> {
         //   console.log(this.readyState)
         // },2000)
         // this.readyState = this.$refs.video.readyState
         // console.log(typeof this.readyState)
         // console.log(this.movieTotalTime);
-        //  await this.getWebSocket();
-        // this.toast = Toast.loading({
+         await this.getWebSocket();
+        //  this.toast = Toast.loading({
         //   duration: 0, // 持续展示 toast
         //   forbidClick: true,
         //   message: '正在排队中...',
@@ -633,11 +644,16 @@
           ws.send(wsDataString)
           // _t.$refs.video.src = "http://ivi.bupt.edu.cn/hls/cctv1hd.m3u8 "
           console.log('數據發送中')
-
+          _t.toast = Toast.loading({
+              duration: 0, // 持续展示 toast
+              forbidClick: true,
+              message: '正在排队中...',
+            });
           };
 
         ws.onmessage = function (evt) {
           console.log('onmessage')
+          _t.toast.clear()
           console.log(evt)
           console.log(222, this)
           if(evt.data === '您今天的查看次数已用完') {
@@ -646,15 +662,23 @@
               duration: 3000,
             })
             return false
-          } else {
+          } else  {
             let url = evt.data;
-            console.log(url, 456)
-            // _t.seeMovieUrl = url
-            _t.$refs.video.src = url
+            _t.seeMovieUrl = url
+            console.log(document.getElementById('ysOpenDevice'),'dsdsdsdsds')
+            document.getElementById('ysOpenDevice').src = url
+            _t.movieShow = true;
+            _t.movieCutTime = setInterval(() => {
+              _t.movieTotalTime--;
+              if (_t.movieTotalTime <= 0) {
+                _t.movieShow = false;
+                // this.readyState = 0
+                clearInterval(_t.movieCutTime);
+                //document.getElementById('wish').pause();
+              }
+            }, 1000);
+            _t.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
           }
-
-
-          console.log(_t.$refs.video.src,'5837d453fsfhk');
           console.log('數據已接收');
           // _t.getViewList();
           ws.close()
@@ -666,7 +690,6 @@
       //关闭影像窗口
       closeMoviePopup() {
         this.movieShow = false
-        this.readyState = 0
         this.ws.close()
         this.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
         clearInterval(this.movieCutTime);
@@ -1175,7 +1198,11 @@
     },
     beforeDestroy() {
       this.toast.clear()
+      this.ws.close()
       this.player.stop(); // 关闭视频流
+      if(localStorage.ecPayRenewItem) {
+        localStorage.removeItem('ecPayRenewItem')
+      }
     },
     destroyed() {
       window.sessionStorage.removeItem('totalTime');
