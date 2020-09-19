@@ -411,26 +411,27 @@ router.beforeEach((to, from, next) => {
     console.log('成3')
   } else {
     //绿界跳转监听
-    if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayItem')) {
-
-      next({
-        name: 'pay'
-      })
-      console.log('成1')
-    }else if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayRenewItem')){
-      next({
-        name:'myBrightLamp'
-      })
-      console.log('成2')
-    } else if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayDonate')){
-      next({
-        name:'donateSuccess'
-      })
-      console.log('成3')
-    }else {
-      next()
-      console.log('cheng4')
-    }
+    // if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayItem')) {
+    //
+    //   next({
+    //     name: 'pay'
+    //   })
+    //   console.log('成1')
+    // }else if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayRenewItem')){
+    //   next({
+    //     name:'myBrightLamp'
+    //   })
+    //   console.log('成2')
+    // } else if((to.path.indexOf('login') !== -1) && localStorage.getItem('ecPayDonate')){
+    //   next({
+    //     name:'donateSuccess'
+    //   })
+    //   console.log('成3')
+    // }else {
+    //   next()
+    //   console.log('cheng4')
+    // }
+    next()
 
   }
 

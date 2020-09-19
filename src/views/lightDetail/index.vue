@@ -576,7 +576,7 @@
           "money": this.needMoney,
           "days": this.days
         };
-        localStorage.setItem('ecPayRenewItem',param)
+        localStorage.setItem('ecPayRenewItem',JSON.stringify(param))
       },
       // 观看实时影象
       async seeMovie() {

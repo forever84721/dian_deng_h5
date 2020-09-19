@@ -82,8 +82,9 @@
       // }
       //监听绿界回调
       if(localStorage.ecPayRenew) {
-        post('api/pay/ecPayRenewConfirm', {
-
+        post('api/pay/ecPayConfirm', {
+          "templeId":JSON.parse(localStorage.getItem('ecPayRenewItem')).templeId,
+          "orderId": JSON.parse(localStorage.getItem('ecPayRenewItem')).orderId
         },res=> {
           console.log(res,'ecpay')
           if(res.data.data === true){
