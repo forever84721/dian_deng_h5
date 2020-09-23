@@ -417,7 +417,6 @@
       },
       // 立即支付
       nowPay() {
-        // console.log('给钱！！！')
         // 检查是否满足续灯的条件
         post('api/order/checkIsRenewable', {
           lampId: this.$route.query.id,
@@ -455,7 +454,6 @@
                       });
                     } else {
                       if (this.openId !== '') {
-                        // console.log('看看',this.days)
                         post('api/pay/renewPay', {
                           "pilgrimId": this.$route.query.pilgrimId,
                           "deposit": Number(this.needMoney),
@@ -535,12 +533,26 @@
                 {
                   "pilgrimId": this.$route.query.pilgrimId,
                   "deposit": Number(this.needMoney),
+                  "durationQuantity": this.days,
                   "templeId": this.templeId
                 }, res=> {
+                  console.log(res.data.data)
+                  let id =res.data.data.substring(res.data.data.indexOf(':')+2,res.data.data.indexOf(',')-1)
+                  let param = {
+                    "templeId": this.templeId,
+                    "pilgrimId": this.$route.query.pilgrimId,
+                    "money": this.needMoney,
+                    "days": this.days,
+                    "orderId": id
+                  };
+                  localStorage.setItem('ecPayRenewItem',JSON.stringify(param))
                   localStorage.setItem('ecPayRenew', 'index')
+                  let test = this.decodeUnicode(res.data.data)
+                  let str = test.indexOf('<')
+                  test = test.substring(str,test.length-2)
                   const div = document.createElement('div')
-                  div.innerHTML  = res.data.data
-
+                  div.innerHTML  = test
+                  console.log(test)
                   document.body.appendChild(div)
                   div.id = 'payDiv'
                   document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
@@ -554,6 +566,12 @@
           }
         });
       },
+       decodeUnicode(str) {
+          str = str.replace(/\\/g, "%");
+          str =  unescape(str);
+          str = str.replace(/%/g, "");
+          return str
+        },
       // 关闭支付
       closePay() {
         this.payShow = false;
@@ -570,13 +588,7 @@
         this.needMoney = value.split('￥')[1];
         console.log(this.needMoney, '123456789')
         console.log(this.days, Number(this.needMoney));
-        let param = {
-          "templeId": this.templeId,
-          "pilgrimId": this.$route.query.pilgrimId,
-          "money": this.needMoney,
-          "days": this.days
-        };
-        localStorage.setItem('ecPayRenewItem',JSON.stringify(param))
+
       },
       // 观看实时影象
       async seeMovie() {
@@ -1016,7 +1028,29 @@
       if (ua.match(/MicroMessenger/i) == 'micromessenger') {
         this.weixinShow = false
       }
-      console.log(new Date(new Date().toLocaleDateString()).getTime())
+      console.log(localStorage.ecPayRenew,localStorage.ecPayRenewItem,'12456')
+      if(localStorage.ecPayRenew){
+        console.log(localStorage.ecPayRenew,localStorage.ecPayRenewItem,'789456')
+        post('api/pay/ecPayConfirm',{
+          "templeId":JSON.parse(localStorage.getItem('ecPayRenewItem')).templeId,
+          "orderId": JSON.parse(localStorage.getItem('ecPayRenewItem')).orderId
+        }, res=> {
+          console.log(!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId), );
+          if(res.data.data === true) {
+            this.$toast('支付成功');
+            window.sessionStorage.setItem('paySuccess', JSON.parse(localStorage.getItem('ecPayRenewItem')).orderId);
+            window.localStorage.removeItem('ecPayRenewItem')
+            window.localStorage.removeItem('ecPayRenew')
+            this.$router.push({path: '/myBrightLamp'});
+
+          }else {
+            this.$toast('支付失败');
+            window.localStorage.removeItem('ecPayRenewItem')
+            window.localStorage.removeItem('ecPayRenew')
+            this.$router.push({path: '/myBrightLamp'});
+          }
+        })
+      }
       // if (window.sessionStorage.getItem('payCount2')) {
       //   this.payCount2 = JSON.parse(window.sessionStorage.getItem('payCount2'));
       // }
@@ -1200,8 +1234,8 @@
       this.toast.clear()
       this.ws.close()
       this.player.stop(); // 关闭视频流
-      if(localStorage.ecPayRenewItem) {
-        localStorage.removeItem('ecPayRenewItem')
+      if(localStorage.ecPayRenew) {
+        localStorage.removeItem('ecPayRenew')
       }
     },
     destroyed() {
@@ -1242,11 +1276,11 @@
   .container {
     .top {
       width: 100%;
-      height: 5.8rem;
+      height: 8.4rem;
 
       img {
         width: 100%;
-        height: 5.8rem;
+        height: 8.4rem;
       }
     }
 

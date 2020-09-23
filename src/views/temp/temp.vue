@@ -374,7 +374,7 @@
         }
 
         .tempImg {
-          height: 6.8rem;
+          height: 8.4rem;
           /*background-color: #5AC55A;*/
 
           img {
@@ -552,15 +552,17 @@
     }
     .my-swipe {
       width:100%;
-      height: 6.8rem;
+      height: 8.4rem;
     }
      .van-swipe-item {
-      height: 6.8rem;
+       height: 8.4rem;
       overflow: hidden;
       display: inline-block;
        .img {
          width: 100%;
-         height: 6.8rem;
+         height: 8.4rem;
+         /*width: 100%;*/
+         /*height: 100%;*/
        }
     }
   }

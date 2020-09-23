@@ -232,7 +232,7 @@
                             "durationQuantity": this.days,
                             "type": "jsapi",
                             "openId": this.openId,
-                            "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
+                            "templeId":localStorage.templeId
                           }, res1 => {
                             console.log(res1);
                             if (res1.data.code === 200) {
@@ -253,7 +253,7 @@
                           "durationQuantity": this.days,
                           "type": "jsapi",
                           "openId": this.openId,
-                          "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
+                          "templeId":localStorage.templeId
                         }, res1 => {
                           console.log(res1);
                           if (res1.data.code === 200) {
@@ -297,7 +297,7 @@
                   "type": "h5",
                   "pilgrimId": this.blessUserInfo.pilgrimId,
                   "openId": "",
-                  "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
+                  "templeId":localStorage.templeId
                 }, res => {
                   console.log(res);
                   // this.$toast(1);
@@ -329,12 +329,29 @@
                   "pilgrimId": this.blessUserInfo.pilgrimId,
                   "deposit": this.needMoney,
                   "durationQuantity": this.days,
+                  "templeId":localStorage.templeId
                 },res=> {
+                  console.log(res.data.data)
+                  let id =res.data.data.substring(res.data.data.indexOf(':')+2,res.data.data.indexOf(',')-1)
+                  let param = {
+                    "pilgrimId": this.blessUserInfo.pilgrimId,
+                    "deposit": this.needMoney,
+                    "durationQuantity": this.days,
+                    "orderId": id,
+                    "templeId":localStorage.templeId
+                  };
+                  localStorage.setItem('ecPayRenewOrderItem',JSON.stringify(param))
+                  localStorage.setItem('ecPayRenew', 'index')
+                  let test = this.decodeUnicode(res.data.data)
+                  let str = test.indexOf('<')
+                  test = test.substring(str,test.length-2)
                   const div = document.createElement('div')
-                  div.innerHTML = res.data.data
+                  div.innerHTML  = test
+                  console.log(test)
+                  document.body.appendChild(div)
                   div.id = 'payDiv'
-                  document.appendChild(div)
                   document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
+
                 })
             } else{
               this.$toast('请选择支付方式');
@@ -343,6 +360,12 @@
             this.$toast('该灯位已被占用~');
           }
         });
+      },
+      decodeUnicode(str) {
+        str = str.replace(/\\/g, "%");
+        str =  unescape(str);
+        str = str.replace(/%/g, "");
+        return str
       },
       closeIsPay() {
         this.isPaySuccessShow = false;
@@ -610,6 +633,27 @@
       if (ua.match(/MicroMessenger/i) == 'micromessenger') {
         this.weixinShow = false
       }
+      // 绿界续灯的调用监听
+      if(localStorage.ecPayRenew){
+        console.log(localStorage.ecPayRenew,localStorage.ecPayRenewOrderItem,'789456')
+        post('api/pay/ecPayConfirm',{
+          "templeId":JSON.parse(localStorage.getItem('ecPayRenewOrderItem')).templeId,
+          "orderId": JSON.parse(localStorage.getItem('ecPayRenewOrderItem')).orderId
+        }, res=> {
+          console.log(!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId), );
+          if(res.data.data === true) {
+            this.$toast('支付成功');
+            window.sessionStorage.setItem('paySuccess', JSON.parse(localStorage.getItem('ecPayRenewOrderItem')).orderId);
+            window.localStorage.removeItem('ecPayRenewOrderItem')
+            window.localStorage.removeItem('ecPayRenew')
+
+          }else {
+            this.$toast('支付失败');
+            window.localStorage.removeItem('ecPayRenewOrderItem')
+            window.localStorage.removeItem('ecPayRenew')
+          }
+        })
+      }
       //订单倒计时
       // line续灯的调用监听
       if (location.href.indexOf("transactionId") !== -1) {
@@ -617,7 +661,7 @@
           "transactionId": this.$route.query.transactionId,
           "money": this.needMoney,
           "pilgrimId": this.$route.query.pilgrimId,
-          "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id,
+          "templeId":localStorage.templeId,
           "durationQuantity": this.$route.query.durationQuantity ,
           "accountId": JSON.parse(localStorage.getItem("userMsg")).id,
         }, res => {
@@ -656,7 +700,7 @@
                       "durationQuantity": this.$route.query.durationQuantity,
                       "type": "jsapi",
                       "openId": this.openId,
-                      "templeId":JSON.parse(localStorage.getItem('selectTempData')).id
+                      "templeId":localStorage.templeId
                     }, res1 => {
                       console.log(res1);
                       if (res1.data.code === 200) {
@@ -699,6 +743,9 @@
             // 根据订单id查询订单详情
             post('api/order/findDtoById', {id: this.orderId}, res => {
               this.orderDetail = res.data.data;
+              if(!localStorage.templeId){
+                localStorage.setItem('templeId',this.orderDetail.temple.id)
+              }
 
             });
           }
@@ -707,14 +754,18 @@
           // 根据订单id查询订单详情
           post('api/order/findDtoById', {id: this.orderId}, res => {
             this.orderDetail = res.data.data;
-            console.log(this.orderDetail);
+            if(!localStorage.templeId){
+              localStorage.setItem('templeId',this.orderDetail.temple.id)
+            }
           });
         }
       } else {
         // 根据订单id查询订单详情
         post('api/order/findDtoById', {id: this.$route.query.orderId}, res => {
           this.orderDetail = res.data.data;
-          console.log(this.orderDetail);
+          if(!localStorage.templeId){
+            localStorage.setItem('templeId',this.orderDetail.temple.id)
+          }
         });
       }
       // if (location.href.indexOf(''))
@@ -731,6 +782,7 @@
       // console.log(this.orderTimeData.formatCreateTime)
       // this.ComputerTime(this.orderTimeData)
     },
+
     updated() {
       if (this.radio === '3') {
         if (localStorage.getItem('environment') === 'weixin') {
@@ -743,6 +795,14 @@
         }
       }
     },
+    beforeDestroy() {
+      if(localStorage.templeId) {
+        localStorage.removeItem('templeId')
+      }
+      if(localStorage.ecPayRenew) {
+        localStorage.removeItem('ecPayRenew')
+      }
+    }
   }
 </script>
 

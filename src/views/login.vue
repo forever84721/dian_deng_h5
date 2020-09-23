@@ -98,8 +98,8 @@ export default {
       title: '登录',
       formValidate: {
         errors: [],
-        phone: '',
-        password: '',
+        phone: '13066427869',
+        password: '123456',
       },
       visible: true,
       arrow: 'arrow-down',

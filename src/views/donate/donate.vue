@@ -364,21 +364,49 @@
           })
 
         } else if(this.radio === '2'){
-          post('api/pay/ecPay',
+          post('api/pay/ecPayDonate',
             {
               "deposit": Number(this.donateMoney),
               // "accountId": JSON.parse(localStorage.getItem("userMsg")).id  ,
               "templeId": JSON.parse(localStorage.getItem('selectTempData')).id,
             }, res=> {
+              // console.log(res.data.data, 'ecpay')
+              // const div = document.createElement('div')
+              // div.innerHTML = res.data.data
+              //
+              // document.body.appendChild(div)
+              // div.id = 'payDiv'
+              // document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
+
+              let id =res.data.data.substring(res.data.data.indexOf(':')+2,res.data.data.indexOf(',')-1)
+              let param = {
+                "deposit": Number(this.donateMoney),
+                "accountId": JSON.parse(localStorage.getItem("userMsg")).id  ,
+                "templeId": JSON.parse(localStorage.getItem('selectTempData')).id,
+                "orderId": id
+              };
+              localStorage.setItem('ecPayDonateItem',JSON.stringify(param))
+              localStorage.setItem('ecPayDonate', 'index')
+              let test = this.decodeUnicode(res.data.data)
+              let str = test.indexOf('<')
+              test = test.substring(str,test.length-2)
               const div = document.createElement('div')
-              div.innerHTML = res.data.data
+              div.innerHTML  = test
+              console.log(test)
               document.body.appendChild(div)
               div.id = 'payDiv'
               document.getElementById('payDiv').getElementsByTagName('form')[0].submit()
+
             })
         }else{
           this.$toast('请选择支付方式');
         }
+      },
+      decodeUnicode(str) {
+        str = str.replace(/\\/g, "%");
+        str =  unescape(str);
+        str = str.replace(/%/g, "");
+        return str
       },
       //input输入框只能输入数字和 小数点后两位
       inputNum(val) {
@@ -441,6 +469,28 @@
           }
         });
       }
+
+      if(localStorage.ecPayDonate) {
+        console.log(localStorage.ecPayDonate,localStorage.ecPayDonateItem,'789456')
+        post('api/pay/ecPayConfirm',{
+          "templeId":JSON.parse(localStorage.getItem('ecPayDonateItem')).templeId,
+          "orderId": JSON.parse(localStorage.getItem('ecPayDonateItem')).orderId
+        }, res=> {
+          console.log(!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId), );
+          if(res.data.data === true) {
+            this.$toast('捐赠成功');
+            window.sessionStorage.setItem('paySuccess', JSON.parse(localStorage.getItem('ecPayDonateItem')).orderId);
+            window.localStorage.removeItem('ecPayDonateItem')
+            window.localStorage.removeItem('ecPayDonate')
+            this.$router.push({path:'/donateSuccess'})
+
+          }else {
+            this.$toast('捐赠失败');
+            window.localStorage.removeItem('ecPayDonateItem')
+            window.localStorage.removeItem('ecPayDonate')
+          }
+        })
+      }
       //获取line的订单状态，跳转页面
       if (location.href.indexOf('transactionId' ) !== -1) {
         // let transactionId = this.$route.query.transactionId
@@ -454,7 +504,7 @@
           console.log(res)
           if (res.data.data === true) {
             this.$toast("捐赠成功")
-            this.$router.push('/donateSuccess')
+            this.$router.push({path:'/donateSuccess'})
           }else {
             this.$toast("捐赠失败")
           }
@@ -480,6 +530,11 @@
         }
       }
     },
+    beforeDestroy() {
+      if(localStorage.ecPayDonate){
+        localStorage.removeItem('ecPayDonate')
+      }
+    }
   }
 </script>
 

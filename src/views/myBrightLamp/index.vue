@@ -89,12 +89,14 @@
           console.log(res,'ecpay')
           if(res.data.data === true){
             this.$toast('支付成功')
-
+            localStorage.removeItem('ecPayRenewItem')
+            localStorage.removeItem('ePayRenew')
           }else{
             this.$toast('支付失败')
+            localStorage.removeItem('ecPayRenewItem')
+            localStorage.removeItem('ePayRenew')
           }
-          localStorage.removeItem('ecPayRenewItem')
-          localStorage.removeItem('ePayRenew')
+
         })
       }
       // 获取我的明灯信息

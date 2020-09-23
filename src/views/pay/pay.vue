@@ -350,7 +350,7 @@
               // "consumeType": "save",
               // "templeId":JSON.parse(window.localStorage.getItem('selectTempData')).id
             }, res=> {
-              let param = {index:0}
+              let param = "index"
               localStorage.setItem('ecPay', param)
               console.log(res.data.data)
               // const payDiv = document.getElementById('payDiv')
@@ -551,8 +551,8 @@
       }
     },
     beforeDestroy() {
-      if(localStorage.ecPayItem) {
-        localStorage.removeItem('ecPayItem')
+      if(localStorage.ecPay) {
+        localStorage.removeItem('ecPay')
       }
       if (!window.sessionStorage.getItem('paySuccess') || String(window.sessionStorage.getItem('paySuccess')) !== String(this.orderId)) {
         this.$toast('支付失败');
