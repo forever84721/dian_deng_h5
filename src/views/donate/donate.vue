@@ -119,7 +119,11 @@
     },
     methods: {
       onClickLeft() {
-        this.$router.go(-1);
+        if(localStorage.ecPayDonateItem){
+          localStorage.removeItem('ecPayDonateItem')
+        }
+        console.log(localStorage.ecPayDonateItem);
+        this.$router.push({path: '/temp'})
       },
       closeIsPay(){
         this.isDonateSuccessShow = false;

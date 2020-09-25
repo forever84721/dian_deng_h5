@@ -99,6 +99,9 @@
     methods: {
       onClickLeft() {
         this.$router.go(-1);
+        if(localStorage.ecPayItem){
+          localStorage.removeItem("ecPayItem")
+        }
       },
       closeIsPay() {
         this.show = false;
@@ -551,6 +554,12 @@
       }
     },
     beforeDestroy() {
+      if(!document.getElementById('payDiv').getElementsByTagName('form')[0]){
+        localStorage.removeItem('ecPayItem')
+      } else{
+        document.getElementById('payDiv').remove()
+      }
+
       if(localStorage.ecPay) {
         localStorage.removeItem('ecPay')
       }

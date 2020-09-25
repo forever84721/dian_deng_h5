@@ -208,7 +208,7 @@
       nowPay() {
         post('api/order/checkIsRenewable', {
           lampId: this.blessUserInfo.id,
-          userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
+          userId: JSON.parse(window.localStorage.getItem('userMsg')).userId
         }, res => {
           console.log(res);
 
@@ -224,7 +224,6 @@
                         console.log(res2);
                         // this.$toast(res);
                         if (res2.data.code === 200) {
-                          console.log('loc', JSON.parse(localStorage.getItem('selectTempData')))
                           this.openId = res2.data.data;
                           post('api/pay/renewPay', {
                             "pilgrimId": this.blessUserInfo.pilgrimId,
@@ -246,7 +245,6 @@
                       });
                     } else {
                       if (this.openId !== '') {
-                        console.log("openId", JSON.parse(localStorage.getItem('selectTempData')))
                         post('api/pay/renewPay', {
                           "pilgrimId": this.blessUserInfo.pilgrimId,
                           "deposit": Number(this.needMoney),
@@ -263,7 +261,6 @@
                           }
                         })
                       } else {
-                        console.log('phone', JSON.parse(localStorage.getItem('selectTempData')))
                         location.href = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf7cda5610536583c&redirect_uri=https%3A%2F%2Fwenxuanguangmingdeng.com%2Fh5%2F%23%2ForderDetail%3Fid%3D' + this.$route.query.id + '%26pilgrimId%3D' + this.blessUserInfo.pilgrimId + '%26money%3D' + this.needMoney + '%26durationQuantity%3D' + this.days + '%26orderId%3D' + this.$route.query.orderId + '+&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect';
                       }
                     }
@@ -484,7 +481,12 @@
       },
       // 返回上一级
       onClickLeft() {
-        this.$router.go(-1);
+        if(localStorage.ecPayRenewOrderItem){
+          localStorage.removeItem('ecPayRenewOrderItem')
+        }
+        console.log(localStorage.ecPayRenewOrderItem)
+        this.$router.push({path: '/order'})
+
       },
       // 前往支付页面
       goPay() {
@@ -527,7 +529,7 @@
         console.log(item);
         post('api/order/checkIsRenewable', {
           lampId: this.blessUserInfo.id,
-          userId: JSON.parse(window.localStorage.getItem('selectTempData')).userId
+          userId: JSON.parse(window.localStorage.getItem('userMsg')).userId
         }, res => {
           console.log(res);
           if (res.data.data === true) {
@@ -651,10 +653,10 @@
             this.$toast('支付失败');
             window.localStorage.removeItem('ecPayRenewOrderItem')
             window.localStorage.removeItem('ecPayRenew')
+            this.$router.push({path: '/order'})
           }
         })
       }
-      //订单倒计时
       // line续灯的调用监听
       if (location.href.indexOf("transactionId") !== -1) {
         post('api/order/linePayRenewConfirm',{
@@ -677,6 +679,7 @@
       // this.$toast(location.href);
       // console.log('11111111111111111111');
       console.log(location.href);
+      //微信续灯的调用监听
       if (location.href.indexOf('code') !== -1) {
         this.userCode = this.getvar(location.href, 'code');
         post('api/user/getLoginType', {}, res => {

@@ -804,6 +804,9 @@
         }
       },
       onClickLeft() {
+        if(localStorage.ecPayRenewItem){
+          localStorage.removeItem('ecPayRenewItem')
+        }
         this.$router.go(-1)
       },
       //实时影像点灯寻灯音乐播放
