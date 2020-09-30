@@ -490,6 +490,16 @@
       },
       // 前往支付页面
       goPay() {
+        if(!localStorage.ecPayItem){
+          let params = {
+            "orderId": this.$route.query.orderId,
+            "durationQuantity": this.orderDetail.durationQuantity,
+            "deposit": this.orderDetail.amount,
+            "templeId": this.orderDetail.temple.id,
+            "index": 0
+          };
+          window.localStorage.setItem('ecPayItem',  JSON.stringify(params))
+        }
         this.$router.push({path: '/pay', query: {orderId: this.$route.query.orderId, money: this.orderDetail.amount}});
       },
       onConfirm(value, index) {
@@ -771,7 +781,7 @@
           }
         });
       }
-      // if (location.href.indexOf(''))
+      console.log(this.orderDetail, '5335453545345545444545')
       setTimeout(() => {
         this.orderTimeData.currentTime = this.formatDateTime(new Date())
         this.orderTimeData.formatCreateTime = this.orderDetail.createAt

@@ -554,7 +554,7 @@
       }
     },
     beforeDestroy() {
-      if(!document.getElementById('payDiv').getElementsByTagName('form')[0]){
+      if(!document.getElementById('payDiv')){
         localStorage.removeItem('ecPayItem')
       } else{
         document.getElementById('payDiv').remove()
