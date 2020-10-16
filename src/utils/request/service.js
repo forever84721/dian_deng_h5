@@ -70,15 +70,16 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   response => {
-    console.log(response, 'nizaina')
-    console.log(response.data.code);
     store.commit('hideLoading')
     if (response.data) {
-
       switch (response.data.code) {
          case 403 :
           // localStorage.removeItem('userMsg');
           // router.replace({path:'/login'});
+          break;
+          case 407:
+            // this.$toast('登录失效，请重新登录');
+            router.replace({path:'/login'});
           break;
       }
     }
@@ -88,7 +89,11 @@ service.interceptors.response.use(
     store.commit('hideLoading')
     if (error.data) {
       switch (error.data.code) {
-        case 403 :
+        case 407:
+          // this.$toast('登录失效，请重新登录');
+          router.replace({path:'/login'});
+          break;
+        case 403:
           // localStorage.removeItem('userMsg');
           // router.replace({path:'/login'});
           break;

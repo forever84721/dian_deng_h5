@@ -70,11 +70,22 @@
         roCallTime: ''
       }
     },
+    // beforeRouteLeave(to ,from, next){
+    //   console.log(to, from, next)
+    //   if(to.path === '/orderDetail'){
+    //     next({name:'personal' })
+    //   }else{
+    //     next()
+    //   }
+    //
+    // },
     methods: {
       // 返回上一级
       onClickLeft() {
-        this.$router.go(-1);
+        // this.$router.go(-1);
+        this.$router.push({name: 'personal'})
       },
+
       // 前往付款页面
       goPay(id,money) {
         this.$router.push({path:'/pay',query:{orderId:id,money:money}});

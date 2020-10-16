@@ -530,7 +530,7 @@
         if(this.$route.query.origin === 'weiXin') {
           post("api/user/save", {
             "user": obj,
-            "openId":this.$route.query.openid
+            "openId":this.$route.query.openid || ""
           }, res1 => {
             if(res1.data.code === 200){
               post('api/user/loginWithOpenId',{openId:this.$route.query.openid},res => {

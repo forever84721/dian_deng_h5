@@ -4,7 +4,7 @@
     <van-nav-bar :title="$t('m.login')" />
     <div class="logo">
       <!--        <img src="@/assets/images/bless.jpg" alt="">-->
-      <img src="../assets/images/login_logo.jpg" alt="">
+      <img src="../assets/images/login_logo_logo.jpg" alt="">
     </div>
     <div class="form">
       <van-cell-group>
@@ -460,6 +460,7 @@ export default {
             user.id = res.data.data.id;
             user.token = res.data.data.token;
             this.$store.commit('SELECT_SHOP', {
+
               user: user,
             });
             console.log(user);

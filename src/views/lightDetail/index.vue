@@ -18,7 +18,7 @@
       <div class="welcome">
         <p class="title">{{lightDetail.lampCategoryName}}</p>
         <div class="content">
-          <p>{{lightDetail.pilgrimRealName}}，祝您{{lightDetail.lampStandBlessing}}</p>
+          <p>{{lightDetail.pilgrimRealName}}，{{lightDetail.lampStandBlessing}}</p>
           <!--          <p>{{$t('m.lightDetailPage.bless')}}</p>-->
         </div>
       </div>
@@ -59,7 +59,6 @@
 
         </div>
       </div>
-
       <!--  实时影像窗口   -->
       <van-overlay :show="movieShow" z-index="0" />
       <van-popup v-model='movieShow' id="moviePopup" :overlay="false" style="width:12.4rem;height:9.4rem" ref="pop" :lazy-render="false">
@@ -79,7 +78,7 @@
         <!--          src="http://hls01open.ys7.com/openlive/f01018a141094b7fa138b9d0b856507b.hd.m3u8"-->
         <iframe
           id="ysOpenDevice"
-          autoplay>
+          class="ysOpenDevice">
         </iframe>
 <!--        <video id="myPlayer" ref="video"-->
 
@@ -113,7 +112,7 @@
 
     <!--  音乐播放  -->
     <audio :src="yyUrl" @ended="wordsEnd" id="welcome"></audio>
-<!--    <audio src="http://47.96.71.160/attachment/music.mp3" id="wish" loop></audio>-->
+    <audio src="https://wenxuanguangmingdeng.com//attachment/music.mp3" id="wish" type="audio/wav"></audio>
     <!--  寻灯弹窗  -->
     <van-popup v-model="isShow" @close="closePopup" >
       <div class="findLamp">
@@ -126,7 +125,7 @@
         </div>
         <div class="message">
           <p class="p_name">{{lightDetail.pilgrimRealName}}</p>
-          <p>祝您{{lightDetail.lampStandBlessing}}</p>
+          <p>{{lightDetail.lampStandBlessing}}</p>
         </div>
         <div class="userMessage">
           <p>寻灯编号:<span style="margin-left: 0.4rem">{{lightDetail.number}}</span></p>
@@ -294,16 +293,14 @@
       getMovieIframe() {
         let popup = document.getElementById('moviePopup')
         let iframe = document.getElementById('ysOpenDevice')
-        console.log(Number(popup.style.height));
-        console.log(html,'html')
+        // console.log(document.getElementById('iframe-btn-container'))
+        // document.getElementById('iframe-btn-container').style.display = 'none'
+        // console.log(iframe.document.getElementById('iframe-btn-container'))
         let html = this.getString(getComputedStyle(window.document.documentElement)['font-size'], 'p')
         let height =this.getString(popup.style.height, 'r')
         let width =this.getString(popup.style.width, 'r')
         iframe.height =height  * html + 'px'
         iframe.width = width * html + 'px'
-        console.log(iframe,'456785')
-        console.log(iframe.height);
-        console.log(popup,'45879')
       },
       // 关闭查询支付结果弹窗
       closeIsPay() {
@@ -592,7 +589,13 @@
       },
       // 观看实时影象
       async seeMovie() {
-        this.getMovieIframe()
+        if(this.lightDetail.viewPoint){
+          this.getMovieIframe()
+          await this.getWebSocket();
+        }else{
+          this.$toast('暂无法观看影像')
+        }
+
         // this.movieShow = true
         // setInterval(()=> {
         //   console.log(this.readyState)
@@ -600,7 +603,7 @@
         // this.readyState = this.$refs.video.readyState
         // console.log(typeof this.readyState)
         // console.log(this.movieTotalTime);
-         await this.getWebSocket();
+
         //  this.toast = Toast.loading({
         //   duration: 0, // 持续展示 toast
         //   forbidClick: true,
@@ -664,9 +667,7 @@
           };
 
         ws.onmessage = function (evt) {
-          console.log('onmessage')
           _t.toast.clear()
-          console.log(evt)
           console.log(222, this)
           if(evt.data === '您今天的查看次数已用完') {
             Toast.fail({
@@ -677,9 +678,10 @@
           } else  {
             let url = evt.data;
             _t.seeMovieUrl = url
-            console.log(document.getElementById('ysOpenDevice'),'dsdsdsdsds')
             document.getElementById('ysOpenDevice').src = url
             _t.movieShow = true;
+            let test = document.getElementsByClassName('iframe-btn-container').style.display = "none"
+            let content = test[0].contentDocument || test[0].contentWindow.document
             _t.movieCutTime = setInterval(() => {
               _t.movieTotalTime--;
               if (_t.movieTotalTime <= 0) {
@@ -691,7 +693,6 @@
             }, 1000);
             _t.movieTotalTime = JSON.parse(window.sessionStorage.getItem('movieTotalTime'));
           }
-          console.log('數據已接收');
           // _t.getViewList();
           ws.close()
 
@@ -714,8 +715,8 @@
               let welcomeWords = document.getElementById('welcome');
               welcomeWords.pause();
             }
-        // let bgm = document.getElementById('wish');
-        // bgm.pause();
+        let bgm = document.getElementById('wish');
+        bgm.pause();
 
 
         // if (!this.isPlayMusic) {
@@ -790,7 +791,6 @@
             console.log(a, b)
             let value1 = a[property][propertyKey]
             let value2 = b[property][propertyKey]
-            console.log(value1, value2)
             return value1 - value2
           }
         } else {
@@ -798,7 +798,6 @@
             console.log(a, b)
             let value1 = a[property]
             let value2 = b[property]
-            console.log(value1, value2)
             return value1 - value2
           }
         }
@@ -811,17 +810,16 @@
       },
       //实时影像点灯寻灯音乐播放
       showMusicStrat() {
-        let str = this.lightDetail.pilgrimRealName + '祝您' + this.lightDetail.lampStandBlessing;
+        let str = this.lightDetail.pilgrimRealName  + this.lightDetail.lampStandBlessing;
         this.yyUrl = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&text=" + encodeURI(str);
         //console.log(this.yyUrl)
         if(navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)){
-          console.log('ios');
           if (this.isPlayMusic) {
             this.$nextTick(() => {
               // let welcomeWords = document.getElementById('welcome');
               // welcomeWords.load();
               // welcomeWords.play();
-              let msg = new SpeechSynthesisUtterance(this.lightDetail.pilgrimRealName + '祝您' + this.lightDetail.lampStandBlessing);
+              let msg = new SpeechSynthesisUtterance(this.lightDetail.pilgrimRealName  + this.lightDetail.lampStandBlessing);
               //console.log(msg)
               msg.lang = 'zh';
               msg.voice = speechSynthesis.getVoices().filter(function(voice) {
@@ -830,10 +828,15 @@
               msg.onend = (event) => {  //语音合成结束时候的回调
                 this.welcomeNum++;
                 this.isWelcomeWordsEnd = true;
-                console.log('欢迎语播放完毕');
-                // let bgm = document.getElementById('wish');
-                // bgm.load();
-                // bgm.play();
+                let bgm = document.getElementById('wish');
+                bgm.load();
+                if(bgm.play() === undefined){
+                  this.$nextTick(() =>{
+                    bgm.play();
+                  })
+                }else {
+                  bgm.play();
+                }
               };
               speechSynthesis.resume();
               speechSynthesis.speak(msg);
@@ -848,7 +851,6 @@
               welcomeWords.play();
             })
           }
-          console.log('安卓')
         }
 
         if (this.welcomeNum === 1) {
@@ -861,8 +863,14 @@
             }
             // 如果文字播报已经完毕，播放背景音乐
             if (this.isWelcomeWordsEnd) {
-              // let bgm = document.getElementById('wish');
-              // bgm.play();
+              let bgm = document.getElementById('wish');
+              if(bgm.play() === undefined){
+                this.$nextTick(() =>{
+                  bgm.play();
+                })
+              }else {
+                bgm.play();
+              }
             }
 
       },
@@ -872,7 +880,7 @@
         this.movieShow = false;
         this.isWelcomeWordsEnd = false;
         this.isShow = true;
-        let str = this.lightDetail.pilgrimRealName + '祝您' + this.lightDetail.lampStandBlessing;
+        let str = this.lightDetail.pilgrimRealName                                                + this.lightDetail.lampStandBlessing;
         this.yyUrl = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&text=" + encodeURI(str);
         post('api/lamp/flash',
         {
@@ -898,13 +906,12 @@
         //   });
         // }
         if(navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)){
-          console.log('ios');
           if (this.isPlayMusic) {
             this.$nextTick(() => {
               // let welcomeWords = document.getElementById('welcome');
               // welcomeWords.load();
               // welcomeWords.play();
-              let msg = new SpeechSynthesisUtterance(this.lightDetail.pilgrimRealName + '祝您' + this.lightDetail.lampStandBlessing);
+              let msg = new SpeechSynthesisUtterance(this.lightDetail.pilgrimRealName  + this.lightDetail.lampStandBlessing);
               msg.lang = 'zh';
               msg.voice = speechSynthesis.getVoices().filter(function(voice) {
                 return voice.name == 'Whisper';
@@ -913,9 +920,15 @@
                 this.welcomeNum++;
                 this.isWelcomeWordsEnd = true;
                 console.log('欢迎语播放完毕');
-                // let bgm = document.getElementById('wish');
-                // bgm.load();
-                // bgm.play();
+                this.$nextTick(()=>{
+                  let bgm = document.getElementById('wish');
+                  bgm.load();
+                  if(bgm.play()){
+                    this.$nextTick(() =>{
+                      bgm.play()
+                    })
+                  }
+                })
               };
               speechSynthesis.resume();
               speechSynthesis.speak(msg);
@@ -926,11 +939,11 @@
           if (this.isPlayMusic) {
             this.$nextTick(() => {
               let welcomeWords = document.getElementById('welcome');
+              console.log(document.getElementById('welcome'))
               welcomeWords.load();
               welcomeWords.play();
             })
           }
-          console.log('安卓')
         }
       },
       // 关闭寻灯弹窗
@@ -951,9 +964,9 @@
           }
         });
         this.$nextTick(() => {
-          // let bgm = document.getElementById('wish');
-          // bgm.load();
-          // bgm.pause();
+          let bgm = document.getElementById('wish');
+          bgm.load();
+          bgm.pause();
         });
         clearInterval(this.cutTime);
 
@@ -992,7 +1005,13 @@
           // 如果文字播报已经完毕，播放背景音乐
           if (this.isWelcomeWordsEnd) {
             let bgm = document.getElementById('wish');
-            bgm.play();
+            if(bgm.play() === undefined){
+              this.$nextTick(() =>{
+                bgm.play();
+              })
+            }else {
+              bgm.play();
+            }
           }
         }
       },
@@ -1000,10 +1019,15 @@
       wordsEnd() {
         this.welcomeNum++;
         this.isWelcomeWordsEnd = true;
-        console.log('欢迎语播放完毕');
         let bgm = document.getElementById('wish');
         bgm.load();
-        bgm.play();
+        if(bgm.play() === undefined){
+          this.$nextTick(() =>{
+            bgm.play();
+          })
+        }else {
+          bgm.play();
+        }
       },
       getvar(url, par) {
         let urlsearch = url.split('?');
@@ -1027,6 +1051,7 @@
       // }
     },
     mounted() {
+
       let ua = window.navigator.userAgent.toLowerCase()
       if (ua.match(/MicroMessenger/i) == 'micromessenger') {
         this.weixinShow = false
@@ -1405,7 +1430,14 @@
 
       .seeMovie {
         margin-right: 0.16rem;
+        .loading{
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+          z-index: 999999;
+        }
       }
+
     }
 
     .pase {

@@ -30,7 +30,15 @@
           已售
         </div>
       </div>
+<!--      <div class="seatList_top">-->
+<!--        <ul>-->
+<!--          <li v-for="(item,index) in seatDetailList" :key="index"-->
+<!--              :class="[index !== seatDetailList.length - 1 ? 'li_style' : '']" >{{index+1}}-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--      </div>-->
       <div class="seatList">
+
         <div class="seatList_left">
           <ul>
             <li v-for="(item,index) in seatDetailList" :key="index"
@@ -39,6 +47,13 @@
           </ul>
         </div>
         <div class="seatList_right">
+          <div class="seatList_top">
+            <ul>
+              <li v-for="(item,index) in seatDetailList" :key="index"
+                  :class="[index !== seatDetailList.length - 1 ? 'li_style' : '']" >{{index+1}}
+              </li>
+            </ul>
+          </div>
           <div v-for="(item1,index1) in seatDetailList" :key="index1"
                :class="[index1 !== seatDetailList.length - 1 ? 'li_style' : '','row_style']">
             <ul>
@@ -452,7 +467,26 @@
           }
         }
       }
+      .seatList_top {
+        margin-top: 0.52rem;
+        background-color: #D5D5D5;
+        width: 84%;
+        height: 0.56rem;
+        border-radius: 0.2rem;
+        margin-left: 0.56rem;
+        box-sizing: border-box;
 
+        ul {
+          width: 100%;
+          li {
+            float: left;
+            text-align: center;
+            height: 0.56rem;
+            width:1.2rem ;
+            line-height: 0.56rem;
+          }
+        }
+      }
       .seatList {
         width: 100%;
         height: 12.92rem;
@@ -478,6 +512,7 @@
         }
 
         .seatList_right {
+
           /*float: left;*/
           width: 84%;
           padding: 0.6rem 0;

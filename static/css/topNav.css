@@ -1,0 +1,28 @@
+
+
+.van-nav-bar {
+  font-size: 0.76rem;
+  background: linear-gradient(81deg, rgba(177, 87, 0, 1), rgba(237, 166, 105, 1));
+  opacity: 0.9;
+}
+
+.van-nav-bar__title {
+  color: #FEFEFE;
+  font-size: 0.72rem;
+}
+
+.van-nav-bar .van-icon {
+  color: #FEFEFE;
+}
+
+.van-nav-bar__arrow {
+  font-size: 0.72rem;
+}
+
+.van-field__button .van-button {
+  border: 0;
+}
+
+.van-button__text {
+  color: #885022;
+}
