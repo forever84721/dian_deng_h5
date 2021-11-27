@@ -76,7 +76,7 @@ const routes = [
       },
       {
         name: 'resetpassword',
-        path: 'resetpassword',
+        path: '/resetpassword',
         meta: {
           title: i18n.t('m.newPsd'),
           // title: '新密码',

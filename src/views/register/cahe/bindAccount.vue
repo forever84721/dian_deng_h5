@@ -109,7 +109,7 @@
         } else {
           this.time = 60;
           this.disable = true;
-          //验证码的时间设置 可有可无
+          //验证码的时间设置
           this.timer();
           post('api/user/sendBindWechatCaptcha', {
             'type': this.areaCode,

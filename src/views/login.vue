@@ -240,7 +240,6 @@ export default {
 
           })
           .catch(err => {
-            console.log('+++++++++++++errlog===================')
             console.log(err)
           })
       }
@@ -249,7 +248,6 @@ export default {
       // console.log(location.href)
       if(location.href.indexOf('code') !== -1 && location.href.indexOf('state') !== -1 ) {
         this.userCode = this.getvar(location.href, 'code');
-            console.log('weixin')
             post(
               'api/user/getWechatOpenId',
               {

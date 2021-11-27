@@ -1,34 +1,34 @@
 <template>
   <div class="safe">
-    <div class="first" v-if="show1">
-      <van-nav-bar
-        :title="$t('m.personal.verify')"
-        left-arrow
-        @click-left="onClickLeft"
-      />
-      <van-cell-group>
-        <van-field
-          v-model="oldPhone"
-          center
-          clearable
-          :label="$t('m.personal.oldTel')"
-          :placeholder="$t('m.personal.pleaseTel')"
-        >
-          <van-button slot="button" size="small" @click="getMessageNum">{{time === 0? $t('m.personal.messageNum'): btnTxt}}</van-button>
-        </van-field>
-        <van-field
-          v-model="oldMessageNum"
-          center
-          clearable
-          :label="$t('m.personal.checkNum')"
-          :placeholder="$t('m.personal.pleaseNum')"
-        >
-        </van-field>
-      </van-cell-group>
-      <div class="next" @click="next">
-        {{$t('m.personal.next')}}
-      </div>
-    </div>
+<!--    <div class="first" v-if="show1">-->
+<!--      <van-nav-bar-->
+<!--        :title="$t('m.personal.verify')"-->
+<!--        left-arrow-->
+<!--        @click-left="onClickLeft"-->
+<!--      />-->
+<!--      <van-cell-group>-->
+<!--        <van-field-->
+<!--          v-model="oldPhone"-->
+<!--          center-->
+<!--          clearable-->
+<!--          :label="$t('m.personal.oldTel')"-->
+<!--          :placeholder="$t('m.personal.pleaseTel')"-->
+<!--        >-->
+<!--          <van-button slot="button" size="small" @click="getMessageNum">{{time === 0? $t('m.personal.messageNum'): btnTxt}}</van-button>-->
+<!--        </van-field>-->
+<!--        <van-field-->
+<!--          v-model="oldMessageNum"-->
+<!--          center-->
+<!--          clearable-->
+<!--          :label="$t('m.personal.checkNum')"-->
+<!--          :placeholder="$t('m.personal.pleaseNum')"-->
+<!--        >-->
+<!--        </van-field>-->
+<!--      </van-cell-group>-->
+<!--      <div class="next" @click="next">-->
+<!--        {{$t('m.personal.next')}}-->
+<!--      </div>-->
+<!--    </div>-->
 
     <div class="second" v-if="show2">
       <van-nav-bar
@@ -98,8 +98,8 @@
         newPhone: '',
         // 新手机验证码
         newMessageNum: '',
-        show1: true,
-        show2: false,
+        show1: false,
+        show2: true,
         show3: false,
         userInfo: {},
         arrow: 'arrow-down',

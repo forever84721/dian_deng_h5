@@ -11,7 +11,8 @@ module.exports = {
     assetsPublicPath: "/",
     proxyTable: {
       "/api": {
-        target: "https://wenxuanguangmingdeng.com",
+        // target: "https://wenxuanguangmingdeng.com",
+        target: "https://platform.freedomstate.idv.tw",
         // http://www.xn--7dv642a.com/
         ws: false,
         changeOrigin: true,
