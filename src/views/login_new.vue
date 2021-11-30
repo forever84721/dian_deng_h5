@@ -1,105 +1,103 @@
 <template>
-  <div class="login">
-    <!--      <header-top :title="title"></header-top>-->
-    <van-nav-bar :title="$t('m.login')" />
-    <div class="logo">
-      <!--        <img src="@/assets/images/bless.jpg" alt="">-->
-      <img src="../assets/images/login_logo_logo.jpg" alt="" />
-    </div>
-    <div class="form">
-      <van-cell-group>
-        <van-field
-          v-model="formValidate.phone"
-          clearable
-          placeholder="请输入手机号"
-          type="tel"
-        >
-          <template slot="left-icon">
-            <div class="tip">
-              <span>+{{ areaCode + area }}</span>
-              <van-icon :name="arrow" />
-            </div>
-          </template>
-        </van-field>
-        <van-field
-          v-if="visible"
-          v-model="formValidate.password"
-          type="password"
-          placeholder="请输入密码"
-          @click-right-icon="visible = false"
-          right-icon="closed-eye"
-        >
-          <template slot="left-icon">
-            <div class="tip">
-              <span>密码</span>
-            </div>
-          </template>
-        </van-field>
-        <van-field
-          v-else
-          v-model="formValidate.password"
-          type="text"
-          right-icon="eye-o"
-          placeholder="请输入密码"
-          @click-right-icon="visible = true"
-        >
-          <template slot="left-icon">
-            <div class="tip">
-              <span>密码</span>
-            </div>
-          </template>
-        </van-field>
-      </van-cell-group>
-      <div class="select" @click="selectAreaCode"></div>
-      <!--      <div class="select">-->
-      <!--        <van-radio-group v-model="radio" class="radio-group">-->
-      <!--          <van-cell-group>-->
-      <!--            <van-cell title="+86" clickable @click="radio = '1'">-->
-      <!--              <van-radio slot="right-icon" name="1" />-->
-      <!--            </van-cell>-->
-      <!--            <van-cell title="+886" clickable @click="radio = '2'">-->
-      <!--              <van-radio slot="right-icon" name="2" />-->
-      <!--            </van-cell>-->
-      <!--          </van-cell-group>-->
-      <!--        </van-radio-group>-->
-      <!--      </div>-->
-    </div>
-    <div class="submit" @click="onSubmit(formValidate)">
-      登录
-    </div>
+  <div>
+    <header class="header">
+      <div class="header-title">登錄</div>
+    </header>
+    <main id="app">
+      <div class="login-root">
+        <div style="position: relative;padding-top: 25px;">
+          <img src="../assets/new_images/logo.png" alt="logo" class="logo" />
+          <img
+            src="../assets/new_images/logo-cloud.png"
+            alt="logo-cloud"
+            class="logo-cloud"
+          />
+        </div>
 
-    <div class="footer">
-      <div class="forget" @click="onForget">忘记密码</div>
-      <div class="register" @click="onRegister">免费注册</div>
-    </div>
+        <div class="input-group" style="padding-top: 20px;">
+          <div style="width: 120px;text-align: center;">
+            <div class="custom-select" @blur="open = false">
+              <div
+                class="selected"
+                :class="{ open: open }"
+                @click="open = !open"
+              >
+                {{ selected.text }}
+              </div>
+              <div class="items" :class="{ selectHide: !open }">
+                <div
+                  v-for="(option, i) of options"
+                  :key="i"
+                  @click="
+                    selected = option;
+                    areaCode = option.value;
+                    open = false;
+                  "
+                >
+                  {{ option.text }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <input type="text" v-model="formValidate.phone" />
+          </div>
+        </div>
 
-    <div class="other">
-      <van-divider :style="{ color: '#999999', borderColor: '#999999' }">
-        其他登录方式
-      </van-divider>
-      <div class="loginWay">
-        <div @click="otherLogin('微信')">
-          <img src="../assets/images/a_ic_1.png" alt="" />
-          <p>微信</p>
+        <div class="input-group">
+          <div style="width: 120px;text-align: center;">
+            <label for="">密碼</label>
+          </div>
+          <div>
+            <input type="password" v-model="formValidate.password" />
+          </div>
         </div>
-        <div @click="otherLogin('LINE')">
-          <img src="../assets/images/a_ic_2.png" alt="" />
-          <p>LINE</p>
+
+        <div style="padding-top: 20px;text-align: center;">
+          <button class="login-button" @click="onSubmit(formValidate)">
+            登錄
+          </button>
         </div>
-        <div @click="otherLogin('Facebook')">
-          <img src="../assets/images/a_ic_3.png" alt="" />
-          <p>Facebook</p>
+
+        <div
+          style="display: flex;width: 280px;font-weight: bold;padding-top: 5px;"
+        >
+          <span class="cp" @click="onForget">忘記密碼</span>
+          <span class="cp" style="margin-left: auto;" @click="onRegister"
+            >免費註冊</span
+          >
         </div>
-        <!--        <div @click="otherLogin('Google')">-->
-        <!--          <img src="../assets/images/a_ic_4.png" alt="">-->
-        <!--          <p>Google</p>-->
-        <!--        </div>-->
+        <div class="dividing-container">
+          <div class="dividing-line"></div>
+          <span class="dividing-text">其他登錄方式</span>
+          <div class="dividing-line"></div>
+        </div>
+
+        <div class="login-method-group">
+          <div
+            class="cp"
+            style="width: 105px;text-align: center;"
+            @click="otherLogin('微信')"
+          >
+            <img src="../assets/new_images/wechat.png" alt="wechat" />
+          </div>
+          <div
+            class="cp"
+            style="width: 105px;text-align: center;"
+            @click="otherLogin('LINE')"
+          >
+            <img src="../assets/new_images/line.png" alt="line" />
+          </div>
+          <div
+            class="cp"
+            style="width: 105px;text-align: center;"
+            @click="otherLogin('Facebook')"
+          >
+            <img src="../assets/new_images/fb.png" alt="fb" />
+          </div>
+        </div>
       </div>
-    </div>
-
-    <!--        <div style="position:fixed;top: 10%;width: 90%;height: 50%;background-color: pink">-->
-    <!--          {{ info }}-->
-    <!--        </div>-->
+    </main>
   </div>
 </template>
 
@@ -119,22 +117,27 @@ export default {
         phone: "",
         password: ""
       },
-      visible: true,
-      arrow: "arrow-down",
+      // arrow: "arrow-down",
       areaCode: "86",
       // 用户授权码
       userCode: "",
       info: {},
       loginCount: 1,
       area: "中国",
-      lineId: {}
+      lineId: {},
       // radio:'1'
+      options: [
+        { text: "+86 中國", value: "86" },
+        { text: "+886 台灣", value: "886" }
+      ],
+      selected: { text: "+86 中國", value: "86" },
+      open: false
     };
   },
   mounted() {
-    console.log("11");
-    console.log(location.search);
-    console.log(window.location.search.replace("?", ""));
+    // console.log("11");
+    // console.log(location.search);
+    // console.log(window.location.search.replace("?", ""));
     this.userCode = this.getvar(location.href, "code");
     console.log(this.userCode);
     if (this.$route.query.templeId) {
@@ -578,118 +581,224 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.login {
-  height: 100vh;
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 104px;
+  background-image: url("../assets/new_images/bar.png");
+  background-repeat: repeat;
+  z-index: 1000;
+}
+
+.header-title {
+  height: 80px;
+  color: #f2efe4;
+  font-size: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+main {
+  padding-top: 104px;
+}
+
+.login-root {
+  position: relative;
+  background-image: url("../assets/new_images/left-bottom-cloud.png"),
+    url("../assets/new_images/right-bottom-cloud.png"),
+    url("../assets/new_images/left-top-flower.png"),
+    url("../assets/new_images/left-flower.png"),
+    url("../assets/new_images/right-flower.png"),
+    url("../assets/new_images/right-bottom-flower.png"),
+    url("../assets/new_images/left-bird.png");
+  background-attachment: fixed, fixed, fixed, fixed, fixed, fixed, fixed;
+  background-position: left bottom, right bottom, left 50px, 100px 500px,
+    right 300px, right 100px bottom, 200px 200px;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+    no-repeat, no-repeat;
+  background-size: 30vw, 30vw, 100px, 100px, 80px, 100px, 150px;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  min-height: calc(100vh - 104px);
+  overflow-x: hidden;
+}
+
+.logo {
+  max-width: 350px;
+}
+
+.logo-cloud {
+  position: absolute;
+  right: -85px;
+  top: 0;
+  width: 200px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  height: 35px;
+  font-weight: bold;
+}
+
+.input-group input {
+  border: none;
+  background-color: #ffeede;
+  font-size: 18px;
+  width: 200px;
+  padding: 5px;
+}
+
+.input-group input:focus-visible {
+  outline: none;
+}
+
+.login-button {
+  border: none;
+  background: url("../assets/new_images/login-button.png");
+  background-size: 280px 60px;
+  width: 280px;
+  height: 60px;
+  color: #e9c26e;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.dividing-container {
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  width: 360px;
+}
+
+.dividing-line {
+  border: 1px solid #000000;
+  opacity: 1;
+  width: 33%;
+  /* flex-basis: 0; */
+  flex-grow: 1;
+  /* max-width: 100%; */
+}
+
+.dividing-text {
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0px;
+  padding: 0 10px;
+}
+
+.login-method-group {
+  padding-top: 20px;
+  width: 360px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.login-method-group > img {
+  width: 50px;
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  height: 47px;
+  line-height: 47px;
+}
+
+.custom-select .selected {
+  /* background-color: none; */
+  /* border-radius: 6px; */
+  /* border: 1px solid #666666; */
+  color: #000000;
+  padding-left: 1em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-select .selected.open {
+  /* border: 1px solid #ad8225; */
+  border-radius: 6px 6px 0px 0px;
+}
+
+.custom-select .selected:after {
+  position: absolute;
+  content: "";
+  top: 22px;
+  right: 1em;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-color: #000000 transparent transparent transparent;
+}
+
+.custom-select .items {
+  color: #000000;
+  border-radius: 0px 0px 6px 6px;
+  overflow: hidden;
+  /* border-right: 1px solid #ad8225;
+      border-left: 1px solid #ad8225;
+      border-bottom: 1px solid #ad8225; */
+  position: absolute;
+  background-color: #913d02;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.custom-select .items div {
+  color: #000000;
+  padding-left: 1em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-select .items div:hover {
+  background-color: #ad8225;
+}
+
+.selectHide {
+  display: none;
+}
+
+@media (max-width: 575.98px) {
+  .login-root {
+    position: relative;
+    background-image: url("../assets/new_images/left-top-flower.png"),
+      url("../assets/new_images/left-flower.png"),
+      url("../assets/new_images/right-flower.png"),
+      url("../assets/new_images/right-bottom-flower.png"),
+      url("../assets/new_images/left-bird.png");
+    background-attachment: fixed, fixed, fixed, fixed;
+    background-position: left 50px, 100px 500px, right 300px, right 100px bottom,
+      10px 380px;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    background-size: 100px, 100px, 80px, 100px, 60px;
+  }
 
   .logo {
-    /*text-align: center;*/
-    /*margin-top: 2.5rem;*/
-    margin-bottom: 0.5rem;
-    width: 100%;
-    height: 8rem;
-    img {
-      height: 100%;
-      width: 100%;
-    }
+    max-width: 350px;
   }
 
-  .form {
-    position: relative;
-    /*.radio-group {*/
-    /*  width: 30%;*/
-    /*  position: absolute;*/
-    /*  !*left: 0;*!*/
-    /*  top: 44px;*/
-    /*  z-index: 1;*/
-    /*}*/
-    padding: 0 0.8rem;
-
-    .tip {
-      width: 4rem;
-      z-index: 999;
-    }
-
-    .van-icon {
-      display: inline-block;
-      vertical-align: bottom;
-    }
-
-    .select {
-      width: 4rem;
-      height: 44px;
-      background-color: transparent;
-      position: absolute;
-      top: 0;
-    }
+  .logo-cloud {
+    position: absolute;
+    right: -30px;
+    top: 20px;
+    width: 140px;
   }
 
-  .submit {
-    background-image: url("../assets/images/b_btn_pay.png");
-    width: 13.08rem;
-    height: 2rem;
-    border-radius: 0.2rem;
-    background-size: cover;
-    line-height: 2rem;
-    text-align: center;
-    font-size: 0.72rem;
-    color: #885022ff;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 0.72rem;
-  }
-
-  .footer {
-    overflow: hidden;
-    width: 13.08rem;
-    font-size: 0.56rem;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 0.6rem;
-    color: #885022ff;
-
-    .forget {
-      float: left;
-    }
-
-    .register {
-      float: right;
-    }
-  }
-
-  .form /deep/ .van-field__control {
-    padding-left: 0.4rem;
-  }
-
-  .other {
-    /*height: 2rem;*/
-    width: 11.72rem;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    /*background-color: #00B1E4;*/
-    margin-top: 2.44rem;
-
-    .loginWay {
-      display: flex;
-
-      div {
-        flex: 1;
-        text-align: center;
-
-        p {
-          font-size: 0.48rem;
-          color: #666666;
-        }
-
-        img {
-          width: 1.36rem;
-          height: 1.36rem;
-          border-radius: 0.2rem;
-        }
-      }
-    }
+  .login-button {
+    background-size: 280px 50px;
+    width: 280px;
+    height: 50px;
+    color: #e9c26e;
+    font-size: 24px;
   }
 }
 </style>
