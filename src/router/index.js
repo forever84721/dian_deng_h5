@@ -108,7 +108,7 @@ const routes = [
       title: i18n.t("m.temp.selectTemp")
       // title: '选择寺庙',
     },
-    component: () => import("@/views/temp/select.vue")
+    component: () => import("@/views/temp/select_new.vue")
   },
   {
     name: "activeCenter",

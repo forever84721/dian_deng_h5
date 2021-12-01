@@ -3,7 +3,7 @@
     <header class="header">
       <div class="header-title">登錄</div>
     </header>
-    <main id="app">
+    <main>
       <div class="login-root">
         <div style="position: relative;padding-top: 25px;">
           <img src="../assets/new_images/logo.png" alt="logo" class="logo" />
@@ -581,29 +581,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 104px;
-  background-image: url("../assets/new_images/bar.png");
-  background-repeat: repeat;
-  z-index: 1000;
-}
-
-.header-title {
-  height: 80px;
-  color: #f2efe4;
-  font-size: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-main {
-  padding-top: 104px;
-}
-
 .login-root {
   position: relative;
   background-image: url("../assets/new_images/left-bottom-cloud.png"),

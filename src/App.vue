@@ -182,19 +182,20 @@ export default {
 //   overflow: auto;
 // }
 
-/*.submit {*/
-/*  width: 100%;*/
-/*  height: 4.44rem;*/
-/*  margin: 0;*/
-/*  padding: 0;*/
-/*  background-size: 100% 3.76rem;*/
-/*  line-height: 3.76rem;*/
-/*  text-align: center;*/
-/*  background-repeat: no-repeat;*/
-/*  color: #885022;*/
-/*  font-size: 0.72rem;*/
-/*}*/
-
+// .submit {
+//   width: 100%;
+//   height: 4.44rem;
+//   margin: 0;
+//   padding: 0;
+//   background-size: 100% 3.76rem;
+//   line-height: 3.76rem;
+//   text-align: center;
+//   background-repeat: no-repeat;
+//   color: #885022;
+//   font-size: 0.72rem;
+// }
+</style>
+<style lang="less">
 *::selection {
   background-color: #913d02;
 }
@@ -206,5 +207,26 @@ body {
 }
 .cp {
   cursor: pointer;
+}
+main {
+  padding-top: 104px;
+}
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 104px;
+  background-image: url("~@/assets/new_images/bar.png");
+  background-repeat: repeat;
+  z-index: 1000;
+}
+
+.header-title {
+  height: 80px;
+  color: #f2efe4;
+  font-size: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
