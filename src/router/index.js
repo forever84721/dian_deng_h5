@@ -99,7 +99,7 @@ const routes = [
       title: i18n.t("m.footerNav.temp")
       // title: '寺庙',
     },
-    component: () => import("@/views/temp/temp.vue")
+    component: () => import("@/views/temp/temp_new.vue")
   },
   {
     name: "selectTemp",
