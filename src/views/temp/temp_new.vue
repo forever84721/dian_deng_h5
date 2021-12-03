@@ -1,78 +1,80 @@
 <template>
-  <div>
-    <header class="header">
-      <div class="header-title">寺廟</div>
-    </header>
-    <main id="app">
-      <div class="root">
-        <div class="temple-container">
-          <div class="dividing-container">
-            <div class="dividing-line" style="margin-right: 15px;"></div>
-            <img
-              src="@/assets/new_images/left.png"
-              alt="left"
-              style="cursor: pointer;"
-            />
-            <span class="dividing-text">{{ tempData.name }}</span>
-            <img
-              src="@/assets/new_images/right.png"
-              alt="right"
-              style="cursor: pointer;"
-            />
-            <div class="dividing-line" style="margin-left: 15px;"></div>
-          </div>
+  <main>
+    <div class="root">
+      <div class="temple-container">
+        <div class="dividing-container">
+          <div class="dividing-line" style="margin-right: 15px;"></div>
+          <img
+            src="@/assets/new_images/left.png"
+            alt="left"
+            style="cursor: pointer;"
+          />
+          <span class="dividing-text">{{ tempData.name }}</span>
+          <img
+            src="@/assets/new_images/right.png"
+            alt="right"
+            style="cursor: pointer;"
+            @click="goToSelectTemp"
+          />
+          <div class="dividing-line" style="margin-left: 15px;"></div>
+        </div>
 
-          <div class="carousel-container">
-            <div style="padding: 0 10px;cursor: pointer;">
-              <img src="@/assets/new_images/left.png" alt="left" />
-            </div>
-            <div
-              style="width: 100%;height: 100%;background-position: center center;background-size: cover;"
-              :style="{
-                backgroundImage: currentImageUrl
-              }"
-            ></div>
-            <div style="padding: 0 10px;cursor: pointer;">
-              <img src="@/assets/new_images/right.png" alt="right" />
-            </div>
+        <div class="carousel-container">
+          <div style="padding: 0 10px;cursor: pointer;">
+            <img src="@/assets/new_images/left.png" alt="left" />
           </div>
-
-          <div style="display: flex;padding: 5px 0;">
-            <div
-              style="font-weight: bold;font-size: 18px;padding: 0 10px;min-width: 75px;"
-            >
-              初步地址
-            </div>
-            <div style="font-weight: bold;font-size: 18px;padding: 0 10px;">
-              {{ tempData.address }}
-            </div>
-          </div>
-
-          <div style="display: flex;padding: 5px 0;">
-            <div
-              style="font-weight: bold;font-size: 18px;padding: 0 10px;margin-top: 5px;min-width: 75px;"
-            >
-              點燈服務
-            </div>
-            <div style="display: flex;flex-wrap: wrap;">
-              <div v-for="lamp in lampList" :key="lamp.id" class="light">
-                {{ lamp.name }}
-              </div>
-            </div>
-          </div>
-
-          <div style="font-weight: bold;font-size: 14px;padding: 10px 10px;">
-            {{ tempData.description }}
-          </div>
-
-          <div class="button-group">
-            <button class="login-button">在線點燈</button>
-            <button class="login-button">捐贈香油錢</button>
+          <div
+            style="width: 100%;height: 100%;background-position: center center;background-size: cover;"
+            :style="{
+              backgroundImage: currentImageUrl
+            }"
+          ></div>
+          <div style="padding: 0 10px;cursor: pointer;">
+            <img src="@/assets/new_images/right.png" alt="right" />
           </div>
         </div>
+
+        <div style="display: flex;padding: 5px 0;">
+          <div
+            style="font-weight: bold;font-size: 18px;padding: 0 10px;min-width: 75px;"
+          >
+            {{ $t("m.temp.lampAddress") }}
+          </div>
+          <div style="font-weight: bold;font-size: 18px;padding: 0 10px;">
+            {{ tempData.address }}
+          </div>
+        </div>
+
+        <div style="display: flex;padding: 5px 0;">
+          <div
+            style="font-weight: bold;font-size: 18px;padding: 0 10px;margin-top: 5px;min-width: 75px;"
+          >
+            {{ $t("m.temp.lampServe") }}
+          </div>
+          <div style="display: flex;flex-wrap: wrap;">
+            <div v-for="lamp in lampList" :key="lamp.id" class="light">
+              {{ lamp.name }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="font-weight: bold;font-size: 14px;padding: 10px 10px;white-space: pre;"
+        >
+          {{ tempData.description }}
+        </div>
+
+        <div class="button-group">
+          <button class="login-button" @click="clickLamp">
+            {{ $t("m.temp.onlineLamp") }}
+          </button>
+          <button class="login-button" @click="goDonate">
+            {{ $t("m.donateMoney") }}
+          </button>
+        </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -415,6 +417,7 @@ export default {
 
 <style scoped lang="less">
 .root {
+  // padding-bottom: 65px;
   position: relative;
   background-image: url("~@/assets/new_images/left-top-flower.png"),
     url("~@/assets/new_images/left-flower.png"),
@@ -433,6 +436,11 @@ export default {
   overflow-x: hidden;
 }
 
+// main {
+//   padding-top: 104px;
+//   padding-bottom: 65px;
+//   flex-basis: 100%;
+// }
 .temple-container {
   max-width: 1000px;
   width: 100%;

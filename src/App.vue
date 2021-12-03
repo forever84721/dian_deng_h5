@@ -1,8 +1,59 @@
 <template>
   <div id="app">
+    <header class="header">
+      <div class="header-title">{{ title }}</div>
+      <!-- $t("m.footerNav.temp") -->
+    </header>
     <router-view />
     <my-loading v-if="loading" />
-    <van-tabbar
+
+    <footer
+      class="footer-menu-container"
+      v-if="
+        pathUrl === '/temp' ||
+          pathUrl === '/myBrightLamp' ||
+          pathUrl === '/activeCenter' ||
+          pathUrl === '/personal' ||
+          pathUrl === '/selectTemp' ||
+          this.$route.query.tempId
+      "
+    >
+      <div class="footer-menu">
+        <router-link class="footer-menu-item" to="/temp">
+          <img
+            src="@/assets/new_images/寺廟介紹.png"
+            :alt="$t('m.footerNav.temp')"
+            class="footer-menu-img1"
+          />
+          <span>{{ $t("m.footerNav.temp") }}</span>
+        </router-link>
+        <router-link class="footer-menu-item" to="/myBrightLamp">
+          <img
+            src="@/assets/new_images/我的明燈.png"
+            :alt="$t('m.footerNav.myLamp')"
+            class="footer-menu-img1"
+          />
+          <span>{{ $t("m.footerNav.myLamp") }}</span>
+        </router-link>
+        <router-link class="footer-menu-item" to="/activeCenter">
+          <img
+            src="@/assets/new_images/活動信息.png"
+            :alt="$t('m.footerNav.activeInfo')"
+            class="footer-menu-img2"
+          />
+          <span>{{ $t("m.footerNav.activeInfo") }}</span>
+        </router-link>
+        <router-link class="footer-menu-item" to="/personal">
+          <img
+            src="@/assets/new_images/會員專區.png"
+            :alt="$t('m.footerNav.personalCenter')"
+            class="footer-menu-img2"
+          />
+          <span>{{ $t("m.footerNav.personalCenter") }}</span>
+        </router-link>
+      </div>
+    </footer>
+    <!-- <van-tabbar
       active-color="BD7030"
       inactive-color="#999999"
       v-if="
@@ -51,7 +102,7 @@
           style="width: 1.2rem;height: 1.2rem"
         />
       </van-tabbar-item>
-    </van-tabbar>
+    </van-tabbar> -->
 
     <!-- <div
       class="space"
@@ -95,6 +146,9 @@ export default {
   computed: {
     loading() {
       return this.$store.state.loading;
+    },
+    title() {
+      return this.$route.meta.title;
     }
   },
   mounted() {
@@ -134,68 +188,6 @@ export default {
 </script>
 
 <style lang="less">
-/*@import "./assets/css/media.css";*/
-// @num: 15px;
-// * {
-//   margin: 0;
-//   padding: 0;
-// }
-
-// html {
-//   font-size: 25px;
-// }
-
-// @media screen and (min-width: 320px) {
-//   html {
-//     font-size: 320 / @num;
-//   }
-// }
-
-// @media screen and (min-width: 375px) {
-//   html {
-//     font-size: 375 / @num;
-//   }
-// }
-
-// @media screen and (min-width: 414px) {
-//   html {
-//     font-size: 414 / @num;
-//   }
-// }
-
-// .van-tabbar-item__icon {
-//   height: 1.2rem;
-//   width: 1.2rem;
-// }
-
-// .space {
-//   height: 50px;
-// }
-
-// .shadow {
-//   box-shadow: 0.08rem 0.4rem 0.16rem rgba(0, 0, 0, 0.2);
-// }
-
-// #app {
-//   min-height: 100vh;
-//   background-color: #ffffff;
-//   overflow: auto;
-// }
-
-// .submit {
-//   width: 100%;
-//   height: 4.44rem;
-//   margin: 0;
-//   padding: 0;
-//   background-size: 100% 3.76rem;
-//   line-height: 3.76rem;
-//   text-align: center;
-//   background-repeat: no-repeat;
-//   color: #885022;
-//   font-size: 0.72rem;
-// }
-</style>
-<style lang="less">
 *::selection {
   background-color: #913d02;
 }
@@ -209,8 +201,13 @@ body {
   cursor: pointer;
 }
 main {
+  flex-basis: 100%;
+  padding-bottom: 65px;
+}
+.header + * {
   padding-top: 104px;
 }
+
 .header {
   position: fixed;
   top: 0;
@@ -228,5 +225,81 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.page-root {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  min-height: calc(100vh - 104px);
+  overflow-x: hidden;
+}
+.footer-menu-container {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  height: 65px;
+}
+
+.footer-menu {
+  display: flex;
+  justify-content: center;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.footer-menu-item {
+  width: 25%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #e9e3db;
+  color: #603812;
+  font-weight: bold;
+  font-size: 20px;
+  border-top: #000000 1px solid;
+  border-left: #000000 1px solid;
+  cursor: pointer;
+  /* border-right: #000000 0.5px solid; */
+}
+
+.footer-menu > :last-child {
+  border-right: #000000 1px solid;
+}
+
+.footer-menu-img1 {
+  width: 60px;
+}
+
+.footer-menu-img2 {
+  width: 40px;
+}
+
+.footer-menu-item > span {
+  margin-left: 10px;
+}
+@media (max-width: 575.98px) {
+  .footer-menu-item {
+    flex-direction: column;
+    font-size: 14px;
+  }
+
+  .footer-menu-img1 {
+    height: 25px;
+    width: auto;
+  }
+
+  .footer-menu-img2 {
+    /* width: 30px; */
+    height: 25px;
+    width: auto;
+  }
+
+  .footer-menu-item > span {
+    margin-top: 5px;
+    margin-left: 0;
+  }
 }
 </style>

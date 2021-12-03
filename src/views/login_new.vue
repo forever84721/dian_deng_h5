@@ -1,104 +1,95 @@
 <template>
-  <div>
-    <header class="header">
-      <div class="header-title">登錄</div>
-    </header>
-    <main>
-      <div class="login-root">
-        <div style="position: relative;padding-top: 25px;">
-          <img src="../assets/new_images/logo.png" alt="logo" class="logo" />
-          <img
-            src="../assets/new_images/logo-cloud.png"
-            alt="logo-cloud"
-            class="logo-cloud"
-          />
-        </div>
+  <main style="padding-bottom:0;">
+    <div class="page-root">
+      <div style="position: relative;padding-top: 25px;">
+        <img src="@/assets/new_images/logo.png" alt="logo" class="logo" />
+        <img
+          src="@/assets/new_images/logo-cloud.png"
+          alt="logo-cloud"
+          class="logo-cloud"
+        />
+      </div>
 
-        <div class="input-group" style="padding-top: 20px;">
-          <div style="width: 120px;text-align: center;">
-            <div class="custom-select" @blur="open = false">
+      <div class="input-group" style="padding-top: 20px;">
+        <div style="width: 120px;text-align: center;">
+          <div class="custom-select" @blur="open = false">
+            <div class="selected" :class="{ open: open }" @click="open = !open">
+              {{ selected.text }}
+            </div>
+            <div class="items" :class="{ selectHide: !open }">
               <div
-                class="selected"
-                :class="{ open: open }"
-                @click="open = !open"
+                v-for="(option, i) of options"
+                :key="i"
+                @click="
+                  selected = option;
+                  areaCode = option.value;
+                  open = false;
+                "
               >
-                {{ selected.text }}
-              </div>
-              <div class="items" :class="{ selectHide: !open }">
-                <div
-                  v-for="(option, i) of options"
-                  :key="i"
-                  @click="
-                    selected = option;
-                    areaCode = option.value;
-                    open = false;
-                  "
-                >
-                  {{ option.text }}
-                </div>
+                {{ option.text }}
               </div>
             </div>
           </div>
-          <div>
-            <input type="text" v-model="formValidate.phone" />
-          </div>
         </div>
-
-        <div class="input-group">
-          <div style="width: 120px;text-align: center;">
-            <label for="">密碼</label>
-          </div>
-          <div>
-            <input type="password" v-model="formValidate.password" />
-          </div>
-        </div>
-
-        <div style="padding-top: 20px;text-align: center;">
-          <button class="login-button" @click="onSubmit(formValidate)">
-            登錄
-          </button>
-        </div>
-
-        <div
-          style="display: flex;width: 280px;font-weight: bold;padding-top: 5px;"
-        >
-          <span class="cp" @click="onForget">忘記密碼</span>
-          <span class="cp" style="margin-left: auto;" @click="onRegister"
-            >免費註冊</span
-          >
-        </div>
-        <div class="dividing-container">
-          <div class="dividing-line"></div>
-          <span class="dividing-text">其他登錄方式</span>
-          <div class="dividing-line"></div>
-        </div>
-
-        <div class="login-method-group">
-          <div
-            class="cp"
-            style="width: 105px;text-align: center;"
-            @click="otherLogin('微信')"
-          >
-            <img src="../assets/new_images/wechat.png" alt="wechat" />
-          </div>
-          <div
-            class="cp"
-            style="width: 105px;text-align: center;"
-            @click="otherLogin('LINE')"
-          >
-            <img src="../assets/new_images/line.png" alt="line" />
-          </div>
-          <div
-            class="cp"
-            style="width: 105px;text-align: center;"
-            @click="otherLogin('Facebook')"
-          >
-            <img src="../assets/new_images/fb.png" alt="fb" />
-          </div>
+        <div>
+          <input type="text" v-model="formValidate.phone" />
         </div>
       </div>
-    </main>
-  </div>
+
+      <div class="input-group">
+        <div style="width: 120px;text-align: center;">
+          <label for="">密碼</label>
+        </div>
+        <div>
+          <input type="password" v-model="formValidate.password" />
+        </div>
+      </div>
+
+      <div style="padding-top: 20px;text-align: center;">
+        <button class="login-button" @click="onSubmit(formValidate)">
+          登錄
+        </button>
+      </div>
+
+      <div
+        style="display: flex;width: 280px;font-weight: bold;padding-top: 5px;"
+      >
+        <span class="cp" @click="onForget">忘記密碼</span>
+        <span class="cp" style="margin-left: auto;" @click="onRegister"
+          >免費註冊</span
+        >
+      </div>
+      <div class="dividing-container">
+        <div class="dividing-line"></div>
+        <span class="dividing-text">其他登錄方式</span>
+        <div class="dividing-line"></div>
+      </div>
+
+      <div class="login-method-group">
+        <div
+          class="cp"
+          style="width: 105px;text-align: center;"
+          @click="otherLogin('微信')"
+        >
+          <img src="@/assets/new_images/wechat.png" alt="wechat" />
+        </div>
+        <div
+          class="cp"
+          style="width: 105px;text-align: center;"
+          @click="otherLogin('LINE')"
+        >
+          <img src="@/assets/new_images/line.png" alt="line" />
+        </div>
+        <div
+          class="cp"
+          style="width: 105px;text-align: center;"
+          @click="otherLogin('Facebook')"
+        >
+          <img src="@/assets/new_images/fb.png" alt="fb" />
+        </div>
+      </div>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -581,8 +572,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.login-root {
-  position: relative;
+.page-root {
   background-image: url("../assets/new_images/left-bottom-cloud.png"),
     url("../assets/new_images/right-bottom-cloud.png"),
     url("../assets/new_images/left-top-flower.png"),
@@ -596,13 +586,6 @@ export default {
   background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
     no-repeat, no-repeat;
   background-size: 30vw, 30vw, 100px, 100px, 80px, 100px, 150px;
-
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  position: relative;
-  min-height: calc(100vh - 104px);
-  overflow-x: hidden;
 }
 
 .logo {
@@ -745,8 +728,7 @@ export default {
 }
 
 @media (max-width: 575.98px) {
-  .login-root {
-    position: relative;
+  .page-root {
     background-image: url("../assets/new_images/left-top-flower.png"),
       url("../assets/new_images/left-flower.png"),
       url("../assets/new_images/right-flower.png"),

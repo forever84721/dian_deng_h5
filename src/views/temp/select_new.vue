@@ -1,63 +1,59 @@
 <template>
-  <div>
-    <header class="header">
-      <div class="header-title">寺廟</div>
-    </header>
-    <main>
-      <div class="page-root">
-        <div class="temple-search-container">
-          <div class="search-input-container">
-            <input type="text" class="search-input" v-model="searchWord" />
-            <div
-              v-if="!searchWord"
-              style="position: absolute;user-select: none;pointer-events: none;display: flex;align-items: center;justify-content: center;width: 350px;bottom:5px;"
-            >
-              <img
-                src="@/assets/new_images/magnifier.png"
-                alt="magnifier"
-                style="width: 24px;"
-              />
-              <span
-                style="color: #adadad;font-size: 24px;margin-left: 15px;word-spacing: 15px;"
-                >請 輸 入 寺 廟 名 稱</span
-              >
-            </div>
-          </div>
+  <main>
+    <div class="page-root">
+      <div class="temple-search-container">
+        <div class="search-input-container">
+          <input type="text" class="search-input" v-model="searchWord" />
           <div
-            style="height: 100px;display: flex;justify-content: center;align-items: center;font-weight: bold;font-size: 24px;"
+            v-if="!searchWord"
+            style="position: absolute;user-select: none;pointer-events: none;display: flex;align-items: center;justify-content: center;width: 350px;bottom:5px;"
           >
-            <span>地　區</span>
-          </div>
-          <div style="padding: 30px 0;;height: 300px;display:flex;">
-            <div
-              style="width: 100%;margin:0 20px;font-weight: bold;font-size: 24px;overflow-y:auto;"
+            <img
+              src="@/assets/new_images/magnifier.png"
+              alt="magnifier"
+              style="width: 24px;"
+            />
+            <span
+              style="color: #adadad;font-size: 24px;margin-left: 15px;word-spacing: 15px;"
+              >請 輸 入 寺 廟 名 稱</span
             >
-              <div
-                class="region1"
-                v-for="(area, index) in firstArea"
-                :key="area.id"
-                @click="selectFirstArea(area, index)"
-                :class="{ selected: index === selectIndex }"
-              >
-                {{ area.name }}
-              </div>
-            </div>
-            <div style="border:black 1px solid;width: 0px;"></div>
+          </div>
+        </div>
+        <div
+          style="height: 100px;display: flex;justify-content: center;align-items: center;font-weight: bold;font-size: 24px;"
+        >
+          <span>地　區</span>
+        </div>
+        <div style="padding: 30px 0;;height: 300px;display:flex;">
+          <div
+            style="width: 100%;margin:0 20px;font-weight: bold;font-size: 24px;overflow-y:auto;"
+          >
             <div
-              style="width: 100%;margin:0 20px;font-weight: bold;font-size: 24px;overflow-y:auto;"
+              class="region1"
+              v-for="(area, index) in firstArea"
+              :key="area.id"
+              @click="selectFirstArea(area, index)"
+              :class="{ selected: index === selectIndex }"
             >
-              <div
-                class="region2"
-                v-for="area in secondArea"
-                :key="area.id"
-                @click="selectSecondArea(area)"
-              >
-                {{ area.name }}
-              </div>
+              {{ area.name }}
             </div>
           </div>
+          <div style="border:black 1px solid;width: 0px;"></div>
+          <div
+            style="width: 100%;margin:0 20px;font-weight: bold;font-size: 24px;overflow-y:auto;"
+          >
+            <div
+              class="region2"
+              v-for="area in secondArea"
+              :key="area.id"
+              @click="selectSecondArea(area)"
+            >
+              {{ area.name }}
+            </div>
+          </div>
+        </div>
 
-          <!-- <div class="showList" :style="'height:' + showListHeight + 'px'">
+        <!-- <div class="showList" :style="'height:' + showListHeight + 'px'">
             <div v-if="templeData.length !== 0">
               <div
                 v-for="(item, index) in templeData"
@@ -86,15 +82,14 @@
             </div>
           </div> -->
 
-          <div style="text-align: center;">
-            <button class="back-button cp" @click="$router.go(-1)">
-              回上一頁
-            </button>
-          </div>
+        <div style="text-align: center;">
+          <button class="back-button cp" @click="$router.go(-1)">
+            回上一頁
+          </button>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -249,7 +244,6 @@ export default {
 
 <style lang="less" scoped>
 .page-root {
-  position: relative;
   background-image: url("~@/assets/new_images/left-bottom-cloud.png"),
     url("~@/assets/new_images/right-bottom-cloud.png"),
     url("~@/assets/new_images/left-top-flower.png"),
@@ -262,13 +256,6 @@ export default {
   background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
     no-repeat;
   background-size: 30vw, 30vw, 100px, 100px, 80px, 100px;
-
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  position: relative;
-  min-height: calc(100vh - 104px);
-  overflow-x: hidden;
 }
 
 .temple-search-container {

@@ -250,7 +250,7 @@ const routes = [
       // title: '线上点灯',
       title: i18n.t("m.lampDetail.onlineLamp")
     },
-    component: () => import("@/views/chooseLamp/index")
+    component: () => import("@/views/chooseLamp/index_new")
   },
   {
     name: "lampDetail",
