@@ -20,7 +20,7 @@
         </div>
 
         <div class="carousel-container">
-          <div style="padding: 0 10px;cursor: pointer;">
+          <div style="padding: 0 10px;cursor: pointer;" @click="previous()">
             <img src="@/assets/new_images/left.png" alt="left" />
           </div>
           <div
@@ -29,7 +29,7 @@
               backgroundImage: currentImageUrl
             }"
           ></div>
-          <div style="padding: 0 10px;cursor: pointer;">
+          <div style="padding: 0 10px;cursor: pointer;" @click="next()">
             <img src="@/assets/new_images/right.png" alt="right" />
           </div>
         </div>
@@ -58,9 +58,7 @@
           </div>
         </div>
 
-        <div
-          style="font-weight: bold;font-size: 14px;padding: 10px 10px;white-space: pre;"
-        >
+        <div style="font-weight: bold;font-size: 14px;padding: 10px 10px;">
           {{ tempData.description }}
         </div>
 
@@ -162,6 +160,20 @@ export default {
       //   return this.url
       // }
       console.log(this.url);
+    },
+    next() {
+      if (this.index < this.url.length - 1) {
+        this.index++;
+      } else if (this.index === this.url.length - 1) {
+        this.index = 0;
+      }
+    },
+    previous() {
+      if (this.index > 0) {
+        this.index--;
+      } else if (this.index === 0) {
+        this.index = this.url.length - 1;
+      }
     }
   },
   computed: {
@@ -175,13 +187,14 @@ export default {
   },
   created() {
     setInterval(() => {
+      // console.log("this.url.length", this.url.length);
       if (this.url) {
         if (this.index < this.url.length - 1) {
           this.index++;
         } else if (this.index === this.url.length - 1) {
           this.index = 0;
         }
-        this.$forceUpdate();
+        // this.$forceUpdate();
       }
     }, 3000);
   },
